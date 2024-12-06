@@ -33,6 +33,17 @@ A simple server for your game. Can be used with any engine. Has a client example
 
 ---
 
+### Basic testing
+
+1. open terminal
+2. open udp connection using netcat `nc -u <ip> <port>`
+
+> By default, server runs on 0.0.0.0:25505 – all available networks 
+
+Start sending messages and you will see them in the server logs
+
+---
+
 ### Issues
 
 **Reflex command not found (`zsh: command not found: reflex`)**
