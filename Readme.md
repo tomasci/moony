@@ -57,3 +57,9 @@ Start sending messages and you will see them in the server logs
 # go path
 export PATH="$PATH:$HOME/go/bin"
 ```
+
+---
+
+### Other
+
+Please, if you ever decide to create a Pull Request (PR), review all the code in the repository first. I prefer to have a comment to almost every line, sometimes the comments describe how things work, sometimes the idea behind the code, etc. Why? First, it's how I learn. Second, after a long time, when I go back, I can more quickly read and understand what's going on. And also, I think it can be helpful for anyone who ever tries to modify code. So, please comment your code and thank you.
