@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -21,10 +22,16 @@ const (
 func main() {
 	log.Println("Server is in startup")
 
-	// todo: add support for -host option, to allow listening all other interfaces
-	isHost := false
+	// host flag definition
+	isHostPointer := flag.Bool("host", false, "Set this flag to listen on all interfaces (will start server at 0.0.0.0)")
+
+	// parse flags
+	flag.Parse()
+
+	isHost := *isHostPointer
 	var address string
 
+	// check host flag and change address according to it
 	if isHost {
 		address = fmt.Sprintf("%s:%d", hostAddress, port)
 	} else {

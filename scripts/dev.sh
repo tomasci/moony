@@ -1,3 +1,3 @@
 #!/bin/bash
 
-reflex -c reflex.conf
+reflex -c ./scripts/configs/reflex.conf
