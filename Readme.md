@@ -33,6 +33,12 @@ A simple server for your game. Can be used with any engine. Has a client example
 
 ---
 
+### Clients
+
+* [Moony Godot Client (MGC)](docs/godot/Introduction.md)
+
+---
+
 ### Basic testing
 
 1. open terminal
