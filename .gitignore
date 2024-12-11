@@ -1,2 +1,7 @@
 build
 .idea
+_client/.godot
+_client/icon.svg
+_client/project.godot
+*.svg.import
+*.godot
