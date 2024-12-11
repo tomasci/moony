@@ -14,6 +14,12 @@ A simple server for your game. Can be used with any engine. Has a client example
 
 --- 
 
+### Clients
+
+* [Moony Godot Client (MGC)](docs/godot/Introduction.md)
+
+---
+
 ### Requirements
 
 1. Install Go 1.23
@@ -30,12 +36,6 @@ A simple server for your game. Can be used with any engine. Has a client example
 3. Run `moony:help` to display all commands
 
 > Shell will also update chmod for scripts in scripts folder, you can remove this part if you don't want to
-
----
-
-### Clients
-
-* [Moony Godot Client (MGC)](docs/godot/Introduction.md)
 
 ---
 
