@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://bxmekcv6edg3t"]
 
-[ext_resource type="PackedScene" uid="uid://cqje3u1yjj86u" path="res://ui/moony/basic_chat.tscn" id="1_xy7sg"]
+[ext_resource type="PackedScene" uid="uid://cqje3u1yjj86u" path="res://ui/moony/basic_chat.tscn" id="1_p6pcx"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_2dw0l"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -31,4 +31,4 @@ environment = SubResource("Environment_pjapq")
 transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
 shadow_enabled = true
 
-[node name="BasicChat" parent="." instance=ExtResource("1_xy7sg")]
+[node name="BasicChat" parent="." instance=ExtResource("1_p6pcx")]

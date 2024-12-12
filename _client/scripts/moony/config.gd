@@ -9,5 +9,8 @@ func _ready() -> void:
 # you can put your values directly here
 # or use them from elsewhere
 # this example shows how to use values from global state
-const mgcUDPAddress: String = Globals.udpAddress
-const mgcUDPPort: int = Globals.udpPort
+
+# server ip address
+const udpAddress: String = Globals.udpAddress
+# server port 
+const udpPort: int = Globals.udpPort
