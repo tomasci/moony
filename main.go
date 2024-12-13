@@ -11,6 +11,7 @@ import (
 	"runtime"
 	"sync"
 	"syscall"
+	"time"
 )
 
 const (
@@ -18,6 +19,11 @@ const (
 	hostAddress  = "0.0.0.0"
 	port         = 25505
 )
+
+type PacketData struct {
+	address *net.UDPAddr
+	data    []byte
+}
 
 func main() {
 	log.Println("Server is in startup")
@@ -74,7 +80,7 @@ func main() {
 	var wg sync.WaitGroup
 	quit := make(chan struct{})
 	// channel for packets; main loop send packets to channel to be processed by worker goroutines
-	packetChan := make(chan []byte, 100)
+	packetChan := make(chan PacketData, 100)
 
 	// worker goroutines setup
 	// starts a number of goroutines equal to threadsCount; each goroutine is a worker that processes packets
@@ -83,7 +89,7 @@ func main() {
 	for i := 0; i < threadsCount; i++ {
 		wg.Add(1)
 		// next: read worker func
-		go worker(i, packetChan, &wg, quit)
+		go worker(i, packetChan, &wg, quit, conn)
 	}
 
 	// main loop
@@ -111,7 +117,7 @@ func main() {
 			}
 
 			select {
-			case packetChan <- buffer[:n]: // send packet to workers
+			case packetChan <- PacketData{clientAddress, buffer[:n]}: // send packet to workers
 				// each received packet is sent into packetChan
 				// where they become available for processing by goroutines (and each goroutine is a separate worker?)
 				// todo: remove, debug purposes only
@@ -135,14 +141,14 @@ func main() {
 	log.Println("Shutting down")
 }
 
-func worker(id int, packetChan chan []byte, wg *sync.WaitGroup, quit <-chan struct{}) {
+func worker(id int, packetChan chan PacketData, wg *sync.WaitGroup, quit <-chan struct{}, conn *net.UDPConn) {
 	defer wg.Done() // signal to waitGroup that worker is done when function exits
 
 	// continuously receive packets from packetChan and process them
 	for {
 		select {
 		case packet := <-packetChan:
-			processPacket(id, packet)
+			processPacket(id, packet, conn)
 		case <-quit:
 			log.Printf("Worker %d stopped\n", id)
 			return
@@ -150,6 +156,14 @@ func worker(id int, packetChan chan []byte, wg *sync.WaitGroup, quit <-chan stru
 	}
 }
 
-func processPacket(id int, packet []byte) {
-	log.Printf("Worker %d processing packet: %v\n", id, string(packet))
+func processPacket(id int, packet PacketData, conn *net.UDPConn) {
+	log.Printf("Worker %d processing packet from %v: %v\n", id, packet.address, string(packet.data))
+
+	// send same incoming packet back to client (just for demo)
+	timestamp := time.Now().UnixMilli()
+	response := []byte(fmt.Sprintf("%d", timestamp))
+	_, err := conn.WriteToUDP(response, packet.address)
+	if err != nil {
+		log.Println("failed to write to UDP:", err)
+	}
 }

@@ -1,0 +1,49 @@
+[gd_scene load_steps=3 format=3 uid="uid://cqje3u1yjj86u"]
+
+[ext_resource type="Script" path="res://ui/moony/basic_chat_scripts/basic_chat.gd" id="1_psjhy"]
+
+[sub_resource type="GDScript" id="GDScript_nivo4"]
+script/source = "extends Button
+
+func _pressed() -> void:
+	print(\"SendMessageButton click\")
+	MoonyClient.sendMessage(\"Hello World!\")
+	return
+"
+
+[node name="BasicChat" type="Control" node_paths=PackedStringArray("chatMessagePrefab", "chatMessageListContainer")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_psjhy")
+chatMessagePrefab = NodePath("ScrollContainer/VBoxContainer/ChatMessagePrefab")
+chatMessageListContainer = NodePath("ScrollContainer/VBoxContainer")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 32.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+
+[node name="ChatMessagePrefab" type="Label" parent="ScrollContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+text = "<chat_message_here>"
+
+[node name="SendMessageButton" type="Button" parent="."]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+text = "Send Message"
+script = SubResource("GDScript_nivo4")

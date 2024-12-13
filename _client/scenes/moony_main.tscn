@@ -1,0 +1,34 @@
+[gd_scene load_steps=5 format=3 uid="uid://bxmekcv6edg3t"]
+
+[ext_resource type="PackedScene" uid="uid://cqje3u1yjj86u" path="res://ui/moony/basic_chat.tscn" id="1_p6pcx"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_2dw0l"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_eccqp"]
+sky_material = SubResource("ProceduralSkyMaterial_2dw0l")
+
+[sub_resource type="Environment" id="Environment_pjapq"]
+background_mode = 2
+sky = SubResource("Sky_eccqp")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="Moony" type="Node3D"]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.946863, -0.1095, 0.302425, 0, 0.940264, 0.340445, -0.321638, -0.322355, 0.890301, 1.06231, 1.13947, 2.97189)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+
+[node name="Environment" type="Node3D" parent="."]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+environment = SubResource("Environment_pjapq")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
+shadow_enabled = true
+
+[node name="BasicChat" parent="." instance=ExtResource("1_p6pcx")]
