@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE instance-profile
+        SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
+
+<instance-profile id="m"
+                 name="Moony"
+>
+
+    <toc-element toc-title="Getting started">
+        <toc-element topic="getting-started-introduction.md"/>
+        <toc-element topic="getting-started-requirements.md"/>
+    </toc-element>
+    <toc-element toc-title="Shell">
+        <toc-element topic="shell-what-is-shell.md"/>
+        <toc-element topic="shell-load-shell.md"/>
+        <toc-element toc-title="Shell commands">
+            <toc-element topic="shell-commands-help.md"/>
+            <toc-element topic="shell-commands-dev.md"/>
+            <toc-element topic="shell-commands-build.md"/>
+            <toc-element topic="shell-commands-start.md"/>
+        </toc-element>
+    </toc-element>
+    <toc-element toc-title="Server">
+        <toc-element topic="server-basic-testing.md"/>
+    </toc-element>
+    <toc-element toc-title="Issues">
+        <toc-element topic="issues-reflex-command-not-found.md"/>
+    </toc-element>
+    <toc-element toc-title="Clients">
+        <toc-element toc-title="Moony Godot Client (MGC)">
+            <toc-element topic="clients-mgc-introduction.md"/>
+            <toc-element topic="clients-mgc-requirements.md"/>
+            <toc-element topic="clients-mgc-work-in-progress.md"/>
+        </toc-element>
+    </toc-element>
+</instance-profile>
