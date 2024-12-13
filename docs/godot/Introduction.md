@@ -20,6 +20,6 @@ Work in progress.
 
 Todo:
 
-* autoload (globals, moony config & state)
-* globals
-* state
+* describe autoload (globals, moony config & state)
+* describe globals
+* describe state
