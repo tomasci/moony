@@ -4,7 +4,7 @@
 
 <instance-profile id="m"
                  name="Moony"
->
+                  start-page="getting-started-introduction.md">
 
     <toc-element toc-title="Getting started">
         <toc-element topic="getting-started-introduction.md"/>
