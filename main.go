@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"flag"
 	"fmt"
 	"log"
+	"moony/moony/core"
 	"net"
 	"os"
 	"os/signal"
@@ -23,6 +25,13 @@ const (
 type PacketData struct {
 	address *net.UDPAddr
 	data    []byte
+}
+
+var dispatcher *core.EventDispatcher
+
+func init() {
+	log.Println("Server init")
+	dispatcher = core.GetGlobalDispatcher()
 }
 
 func main() {
@@ -95,6 +104,11 @@ func main() {
 	// main loop
 	go func() {
 		log.Println("Server started")
+		// dispatch server started event
+		// don't delete this event because it may affect some code or plugins
+		dispatcher.Dispatch(core.OnServerStarted, context.Background(), nil)
+		// but you can remove this one :)
+		dispatcher.Dispatch("CustomHelloWorldEvent", context.Background(), "Hello, world!")
 
 		for {
 			// buffer for incoming data
@@ -128,12 +142,30 @@ func main() {
 		}
 	}()
 
+	// these handlers are placed here just as an example
+	// you can remove them (all three)
+	dispatcher.RegisterEventHandler(core.OnServerStarted, func(ctx context.Context, data interface{}) {
+		log.Println("Dispatcher: Server started (Example)", data)
+	})
+
+	dispatcher.RegisterEventHandler(core.OnServerStopped, func(ctx context.Context, data interface{}) {
+		log.Println("Dispatcher: Server stopped (Example)", data)
+	})
+
+	dispatcher.RegisterEventHandler("CustomHelloWorldEvent", func(ctx context.Context, data interface{}) {
+		log.Println("Dispatcher: CustomHelloWorldEvent (Example)", data)
+	})
+
 	// create channel for os Signal values, can store only one signal
 	sigChan := make(chan os.Signal, 1)
 	// listen for SIGINT & SIGTERM and direct signals to sigChan
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	// wait for system signal (interruption|termination signal)
 	<-sigChan
+
+	// dispatch server stopped event
+	// don't delete this event because it may affect some code or plugins
+	dispatcher.Dispatch(core.OnServerStopped, context.Background(), nil)
 
 	close(quit) // signal all goroutines to exit
 	close(packetChan)

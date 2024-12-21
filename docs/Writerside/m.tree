@@ -22,6 +22,12 @@
     </toc-element>
     <toc-element toc-title="Server">
         <toc-element topic="server-basic-testing.md"/>
+        <toc-element toc-title="Event Dispatcher">
+            <toc-element topic="server-event-dispatcher-what-is-event-dispatcher.md"/>
+            <toc-element topic="server-event-dispatcher-server-events.md"/>
+            <toc-element topic="server-event-dispatcher-dispatching-events.md"/>
+            <toc-element topic="server-event-dispatcher-handling-events.md"/>
+        </toc-element>
     </toc-element>
     <toc-element toc-title="Issues">
         <toc-element topic="issues-reflex-command-not-found.md"/>

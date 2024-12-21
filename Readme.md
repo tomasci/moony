@@ -1,6 +1,6 @@
 # Moony
 
-A simple server for your game. Can be used with any engine. Has a client example for Godot.
+A simple dedicated server for your game. Can be used with any engine. Has a client example for Godot.
 
 ![Moony logotype](assets/moony.png)
 
