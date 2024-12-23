@@ -1,4 +1,4 @@
-package core
+package event_dispatcher
 
 import (
 	"context"

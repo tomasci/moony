@@ -2,18 +2,19 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
 	"log"
-	"moony/moony/core"
+	"moony/moony/core/event_dispatcher"
+	"moony/utils/response"
 	"net"
 	"os"
 	"os/signal"
 	"runtime"
 	"sync"
 	"syscall"
-	"time"
 )
 
 const (
@@ -27,11 +28,17 @@ type PacketData struct {
 	data    []byte
 }
 
-var dispatcher *core.EventDispatcher
+type MessageData struct {
+	Plugin string      `json:"plugin"`
+	Method string      `json:"method"`
+	Data   interface{} `json:"data"`
+}
+
+var dispatcher *event_dispatcher.EventDispatcher
 
 func init() {
 	log.Println("Server init")
-	dispatcher = core.GetGlobalDispatcher()
+	dispatcher = event_dispatcher.GetGlobalDispatcher()
 }
 
 func main() {
@@ -106,7 +113,7 @@ func main() {
 		log.Println("Server started")
 		// dispatch server started event
 		// don't delete this event because it may affect some code or plugins
-		dispatcher.Dispatch(core.OnServerStarted, context.Background(), nil)
+		dispatcher.Dispatch(event_dispatcher.OnServerStarted, context.Background(), nil)
 		// but you can remove this one :)
 		dispatcher.Dispatch("CustomHelloWorldEvent", context.Background(), "Hello, world!")
 
@@ -144,11 +151,11 @@ func main() {
 
 	// these handlers are placed here just as an example
 	// you can remove them (all three)
-	dispatcher.RegisterEventHandler(core.OnServerStarted, func(ctx context.Context, data interface{}) {
+	dispatcher.RegisterEventHandler(event_dispatcher.OnServerStarted, func(ctx context.Context, data interface{}) {
 		log.Println("Dispatcher: Server started (Example)", data)
 	})
 
-	dispatcher.RegisterEventHandler(core.OnServerStopped, func(ctx context.Context, data interface{}) {
+	dispatcher.RegisterEventHandler(event_dispatcher.OnServerStopped, func(ctx context.Context, data interface{}) {
 		log.Println("Dispatcher: Server stopped (Example)", data)
 	})
 
@@ -165,7 +172,7 @@ func main() {
 
 	// dispatch server stopped event
 	// don't delete this event because it may affect some code or plugins
-	dispatcher.Dispatch(core.OnServerStopped, context.Background(), nil)
+	dispatcher.Dispatch(event_dispatcher.OnServerStopped, context.Background(), nil)
 
 	close(quit) // signal all goroutines to exit
 	close(packetChan)
@@ -191,11 +198,33 @@ func worker(id int, packetChan chan PacketData, wg *sync.WaitGroup, quit <-chan 
 func processPacket(id int, packet PacketData, conn *net.UDPConn) {
 	log.Printf("Worker %d processing packet from %v: %v\n", id, packet.address, string(packet.data))
 
-	// send same incoming packet back to client (just for demo)
-	timestamp := time.Now().UnixMilli()
-	response := []byte(fmt.Sprintf("%d", timestamp))
-	_, err := conn.WriteToUDP(response, packet.address)
+	var messageData MessageData
+	err := json.Unmarshal(packet.data, &messageData)
 	if err != nil {
-		log.Println("failed to write to UDP:", err)
+		log.Println("failed to unmarshal packet:", err)
+
+		responseJson, responseError := response.Error[any](500, "", "", nil, err)
+		if responseError != nil {
+			log.Println("failed to marshall response:", responseError)
+		}
+
+		_, udpError := conn.WriteToUDP(responseJson, packet.address)
+		if udpError != nil {
+			log.Println("failed to write response:", udpError)
+		}
 	}
+
+	responseJson, responseError := response.Success[any]("", "", "Hello, Moony!")
+	if responseError != nil {
+		log.Println("failed to marshall response:", responseError)
+	}
+
+	_, udpError := conn.WriteToUDP(responseJson, packet.address)
+	if udpError != nil {
+		log.Println("failed to write response:", udpError)
+	}
+
+	// todo:
+	// 1. get plugin by name
+	// 2. call plugin method by name
 }

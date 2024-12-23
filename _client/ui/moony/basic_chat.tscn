@@ -7,7 +7,7 @@ script/source = "extends Button
 
 func _pressed() -> void:
 	print(\"SendMessageButton click\")
-	MoonyClient.sendMessage(\"Hello World!\")
+	MoonyClient.sendMessage({\"plugin\": \"test\", \"method\": \"test2\", \"data\": \"test3\"})
 	return
 "
 
