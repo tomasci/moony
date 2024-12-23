@@ -4,6 +4,7 @@
 rm -rf ./build
 
 # create dir for build
+sleep 0.2
 mkdir ./build
 
 # build server

@@ -6,13 +6,13 @@ import (
 )
 
 // EventHandler - event handler type
-type EventHandler func(ctx context.Context, data interface{})
+type EventHandler func(ctx context.Context, data []any)
 
 type EventDispatcher struct {
 	// sync access to shared resources, thread-safe read-write access to handlers
 	mu sync.RWMutex
 	// map with eventType eventHandler association
-	handlers map[EventType][]EventHandler
+	handlers map[string][]EventHandler
 }
 
 // pointer to singleton instance of EventDispatcher
@@ -27,7 +27,7 @@ func GetGlobalDispatcher() *EventDispatcher {
 	// ensuring that the initialization code runs only once
 	once.Do(func() {
 		globalDispatcher = &EventDispatcher{
-			handlers: make(map[EventType][]EventHandler),
+			handlers: make(map[string][]EventHandler),
 		}
 	})
 
@@ -50,7 +50,7 @@ func GetGlobalDispatcher() *EventDispatcher {
 // const dispatcher = new EventDispatcher()
 // dispatcher.RegisterEventHandler(...)
 // hope you understand it, because it took a while for me...
-func (d *EventDispatcher) RegisterEventHandler(eventType EventType, handler EventHandler) {
+func (d *EventDispatcher) RegisterEventHandler(eventType string, handler EventHandler) {
 	// lock dispatcher to add new handler
 	d.mu.Lock()
 	// unlock after updating
@@ -61,7 +61,7 @@ func (d *EventDispatcher) RegisterEventHandler(eventType EventType, handler Even
 
 // Dispatch - trigger all handlers by eventType
 // same thing with receiver here and in any other cases
-func (d *EventDispatcher) Dispatch(eventType EventType, ctx context.Context, data interface{}) {
+func (d *EventDispatcher) Dispatch(eventType string, ctx context.Context, data []any) {
 	// read lock to ensure safe concurrent reads from handlers map
 	// basically, no new handlers will be added until current operation is done
 	d.mu.RLock()

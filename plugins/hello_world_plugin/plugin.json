@@ -1,0 +1,7 @@
+{
+  "name": "hello_world_plugin",
+  "description": "Hello world!",
+  "version": "1.0.0",
+  "author": "tomasci",
+  "dependencies": []
+}

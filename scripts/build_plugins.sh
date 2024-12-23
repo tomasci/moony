@@ -18,6 +18,6 @@ for plugin_path in $PLUGIN_DIR/*; do
 
         cp $plugin_path/plugin.json $output_dir
 
-        echo "  \xE2\x9C\x94 $plugin_name"
+        printf "  \xE2\x9C\x94 %s\n" "$plugin_name"
     fi
 done

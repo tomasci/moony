@@ -110,6 +110,8 @@ func main() {
 
 	log.Println("Listening on:", address)
 
+	ctx := context.Background()
+
 	// waitGroup to sync goroutines
 	var wg sync.WaitGroup
 	quit := make(chan struct{})
@@ -131,9 +133,9 @@ func main() {
 		log.Println("Server started")
 		// dispatch server started event
 		// don't delete this event because it may affect some code or plugins
-		dispatcher.Dispatch(event_dispatcher.OnServerStarted, context.Background(), nil)
+		dispatcher.Dispatch("OnServerStarted", ctx, nil)
 		// but you can remove this one :)
-		dispatcher.Dispatch("CustomHelloWorldEvent", context.Background(), "Hello, world!")
+		dispatcher.Dispatch("CustomHelloWorldEvent", ctx, []any{"Hello world!"})
 
 		for {
 			// buffer for incoming data
@@ -168,17 +170,16 @@ func main() {
 	}()
 
 	// these handlers are placed here just as an example
-	// you can remove them (all three)
-	dispatcher.RegisterEventHandler(event_dispatcher.OnServerStarted, func(ctx context.Context, data interface{}) {
-		log.Println("Dispatcher: Server started (Example)", data)
+	dispatcher.Dispatch("hello_world_plugin.sum", ctx, []any{5, 7})
+	dispatcher.Dispatch("hello_world_plugin.sum", ctx, []any{10, 15})
+	dispatcher.Dispatch("hello_world_plugin.sum", ctx, []any{32461, 132})
+	dispatcher.Dispatch("hello_world_plugin.sum", ctx, []any{5, "b"})
+	dispatcher.RegisterEventHandler("hello_world_plugin.sum.result", func(ctx context.Context, data []any) {
+		log.Println("Dispatcher: hello_world_plugin.sum.result (Example)", data)
 	})
-
-	dispatcher.RegisterEventHandler(event_dispatcher.OnServerStopped, func(ctx context.Context, data interface{}) {
-		log.Println("Dispatcher: Server stopped (Example)", data)
-	})
-
-	dispatcher.RegisterEventHandler("CustomHelloWorldEvent", func(ctx context.Context, data interface{}) {
-		log.Println("Dispatcher: CustomHelloWorldEvent (Example)", data)
+	dispatcher.Dispatch("hello_world_plugin.capitalize", ctx, []any{"welcome evening, sydney! i'm taylor!"})
+	dispatcher.RegisterEventHandler("hello_world_plugin.capitalize.result", func(ctx context.Context, data []any) {
+		log.Println("Dispatcher: hello_world_plugin.capitalize.result (Example)", data)
 	})
 
 	// create channel for os Signal values, can store only one signal
@@ -190,7 +191,7 @@ func main() {
 
 	// dispatch server stopped event
 	// don't delete this event because it may affect some code or plugins
-	dispatcher.Dispatch(event_dispatcher.OnServerStopped, context.Background(), nil)
+	dispatcher.Dispatch("OnServerStopped", ctx, nil)
 
 	close(quit) // signal all goroutines to exit
 	close(packetChan)
