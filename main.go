@@ -8,10 +8,13 @@ import (
 	"fmt"
 	"log"
 	"moony/moony/core/event_dispatcher"
+	"moony/moony/core/plugins"
+	"moony/utils"
 	"moony/utils/response"
 	"net"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"runtime"
 	"sync"
 	"syscall"
@@ -36,9 +39,25 @@ type MessageData struct {
 
 var dispatcher *event_dispatcher.EventDispatcher
 
+// init is go predefined function, it executes before main
 func init() {
 	log.Println("Server init")
+	// get dispatcher
 	dispatcher = event_dispatcher.GetGlobalDispatcher()
+
+	// get executable directory
+	exeDir, err := utils.GetExecutableDir()
+	if err != nil {
+		log.Fatalf("failed to get executable directory: %v\n", err)
+	}
+
+	// try to load plugins
+	pluginsDir := filepath.Join(exeDir, "plugins")
+	if loadedPluginsCount, err := plugins.LoadPlugins(pluginsDir, dispatcher); err != nil {
+		log.Fatalf("failed to load plugins: %v\n", err)
+	} else {
+		log.Printf("Loaded %d plugins", loadedPluginsCount)
+	}
 }
 
 func main() {
@@ -46,7 +65,6 @@ func main() {
 
 	// host flag definition
 	isHostPointer := flag.Bool("host", false, "Set this flag to listen on all interfaces (will start server at 0.0.0.0)")
-
 	// parse flags
 	flag.Parse()
 

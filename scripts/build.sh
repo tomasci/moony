@@ -11,3 +11,5 @@ sleep 0.2
 ./scripts/build_server.sh
 
 # build plugins
+sleep 0.2
+./scripts/build_plugins.sh
