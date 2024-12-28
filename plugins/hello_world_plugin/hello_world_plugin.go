@@ -5,6 +5,8 @@ import (
 	"log"
 	"moony/moony/core/event_dispatcher"
 	"moony/moony/core/plugins"
+	"moony/moony/utils/response"
+	"net"
 	"strings"
 	"time"
 	"unicode"
@@ -25,12 +27,12 @@ func (plugin *HelloWorldPlugin) Init(ctx context.Context, dispatcher *event_disp
 	plugin.config = config
 
 	// this is how you usually register event handlers
-	dispatcher.RegisterEventHandler("OnServerStarted", func(eventCtx context.Context, data []any) {
+	dispatcher.RegisterEventHandler("OnServerStarted", func(eventCtx context.Context, conn *net.UDPConn, address *net.UDPAddr, data []any) {
 		log.Printf("%v: %v", plugin.config.Name, data)
 	})
 
 	// this is example, where you use plugin name as namespace and dot to separate plugin name and method name
-	dispatcher.RegisterEventHandler(plugin.config.Name+".sum", func(eventCtx context.Context, data []any) {
+	dispatcher.RegisterEventHandler(plugin.config.Name+".sum", func(eventCtx context.Context, conn *net.UDPConn, address *net.UDPAddr, data []any) {
 		a, aOk := data[0].(int)
 		b, bOk := data[1].(int)
 		if !aOk || !bOk {
@@ -41,10 +43,10 @@ func (plugin *HelloWorldPlugin) Init(ctx context.Context, dispatcher *event_disp
 		result := plugin.sum(a, b)
 
 		// and when you want to return result, you call dispatch with the same event name, but .result suffix
-		dispatcher.Dispatch(plugin.config.Name+".sum.result", eventCtx, []any{result})
+		dispatcher.Dispatch(plugin.config.Name+".sum.result", eventCtx, conn, address, []any{result})
 	})
 
-	dispatcher.RegisterEventHandler(plugin.config.Name+".capitalize", func(eventCtx context.Context, data []any) {
+	dispatcher.RegisterEventHandler(plugin.config.Name+".capitalize", func(eventCtx context.Context, conn *net.UDPConn, address *net.UDPAddr, data []any) {
 		str, ok := data[0].(string)
 		if !ok {
 			log.Println(plugin.config.Name+".capitalize.result", "invalid input data")
@@ -52,7 +54,10 @@ func (plugin *HelloWorldPlugin) Init(ctx context.Context, dispatcher *event_disp
 		}
 
 		result := plugin.capitalize(str)
-		dispatcher.Dispatch(plugin.config.Name+".capitalize.result", eventCtx, []any{result})
+		if conn != nil && address != nil {
+			response.SendResponse[any](conn, address, plugin.config.Name, "capitalize", result, nil)
+		}
+		dispatcher.Dispatch(plugin.config.Name+".capitalize.result", eventCtx, conn, address, []any{result})
 	})
 
 	return nil

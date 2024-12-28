@@ -10,7 +10,7 @@ func _ready() -> void:
 	# create callable callback for moony_message_any signal
 	var callableOnMoonyMessageAny = Callable(self, "_onMoonyMessageAny")
 	# connect signal with callback
-	MoonyClient.connect("moony_message_any", callableOnMoonyMessageAny)
+	MoonyClient.connect("moony_message_hello_world_capitalize", callableOnMoonyMessageAny)
 	return
 
 # callback for moony_message_any signal

@@ -1,13 +1,14 @@
-[gd_scene load_steps=3 format=3 uid="uid://cqje3u1yjj86u"]
+[gd_scene load_steps=4 format=3 uid="uid://cqje3u1yjj86u"]
 
 [ext_resource type="Script" path="res://ui/moony/basic_chat_scripts/basic_chat.gd" id="1_psjhy"]
+[ext_resource type="PackedScene" uid="uid://c280p46r4uqru" path="res://ui/moony/moony_debug.tscn" id="2_hkj6m"]
 
 [sub_resource type="GDScript" id="GDScript_nivo4"]
 script/source = "extends Button
 
 func _pressed() -> void:
 	print(\"SendMessageButton click\")
-	MoonyClient.sendMessage({\"plugin\": \"test\", \"method\": \"test2\", \"data\": \"test3\"})
+	MoonyClient.sendMessage(\"hello_world\", \"capitalize\", \"hello world!\")
 	return
 "
 
@@ -21,6 +22,9 @@ grow_vertical = 2
 script = ExtResource("1_psjhy")
 chatMessagePrefab = NodePath("ScrollContainer/VBoxContainer/ChatMessagePrefab")
 chatMessageListContainer = NodePath("ScrollContainer/VBoxContainer")
+
+[node name="MoonyDebug" parent="." instance=ExtResource("2_hkj6m")]
+layout_mode = 1
 
 [node name="ScrollContainer" type="ScrollContainer" parent="."]
 layout_mode = 1

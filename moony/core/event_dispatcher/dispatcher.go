@@ -2,11 +2,12 @@ package event_dispatcher
 
 import (
 	"context"
+	"net"
 	"sync"
 )
 
 // EventHandler - event handler type
-type EventHandler func(ctx context.Context, data []any)
+type EventHandler func(ctx context.Context, conn *net.UDPConn, address *net.UDPAddr, data []any)
 
 type EventDispatcher struct {
 	// sync access to shared resources, thread-safe read-write access to handlers
@@ -61,7 +62,7 @@ func (d *EventDispatcher) RegisterEventHandler(eventType string, handler EventHa
 
 // Dispatch - trigger all handlers by eventType
 // same thing with receiver here and in any other cases
-func (d *EventDispatcher) Dispatch(eventType string, ctx context.Context, data []any) {
+func (d *EventDispatcher) Dispatch(eventType string, ctx context.Context, conn *net.UDPConn, address *net.UDPAddr, data []any) {
 	// read lock to ensure safe concurrent reads from handlers map
 	// basically, no new handlers will be added until current operation is done
 	d.mu.RLock()
@@ -73,7 +74,7 @@ func (d *EventDispatcher) Dispatch(eventType string, ctx context.Context, data [
 		// go through all handlers and call them
 		for _, handler := range handlers {
 			// calling each in new goroutine (allowing async event processing)
-			go handler(ctx, data)
+			go handler(ctx, conn, address, data)
 		}
 	}
 }

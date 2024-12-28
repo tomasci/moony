@@ -9,8 +9,8 @@ import (
 	"log"
 	"moony/moony/core/event_dispatcher"
 	"moony/moony/core/plugins"
-	"moony/utils"
-	"moony/utils/response"
+	"moony/moony/utils"
+	"moony/moony/utils/response"
 	"net"
 	"os"
 	"os/signal"
@@ -32,9 +32,9 @@ type PacketData struct {
 }
 
 type MessageData struct {
-	Plugin string      `json:"plugin"`
-	Method string      `json:"method"`
-	Data   interface{} `json:"data"`
+	Plugin string `json:"plugin"`
+	Method string `json:"method"`
+	Data   []any  `json:"data"`
 }
 
 var dispatcher *event_dispatcher.EventDispatcher
@@ -125,7 +125,7 @@ func main() {
 	for i := 0; i < threadsCount; i++ {
 		wg.Add(1)
 		// next: read worker func
-		go worker(i, packetChan, &wg, quit, conn)
+		go worker(i, packetChan, &wg, quit, conn, ctx)
 	}
 
 	// main loop
@@ -133,9 +133,9 @@ func main() {
 		log.Println("Server started")
 		// dispatch server started event
 		// don't delete this event because it may affect some code or plugins
-		dispatcher.Dispatch("OnServerStarted", ctx, nil)
+		dispatcher.Dispatch("OnServerStarted", ctx, nil, nil, nil)
 		// but you can remove this one :)
-		dispatcher.Dispatch("CustomHelloWorldEvent", ctx, []any{"Hello world!"})
+		dispatcher.Dispatch("CustomHelloWorldEvent", ctx, nil, nil, []any{"Hello world!"})
 
 		for {
 			// buffer for incoming data
@@ -170,16 +170,16 @@ func main() {
 	}()
 
 	// these handlers are placed here just as an example
-	dispatcher.Dispatch("hello_world_plugin.sum", ctx, []any{5, 7})
-	dispatcher.Dispatch("hello_world_plugin.sum", ctx, []any{10, 15})
-	dispatcher.Dispatch("hello_world_plugin.sum", ctx, []any{32461, 132})
-	dispatcher.Dispatch("hello_world_plugin.sum", ctx, []any{5, "b"})
-	dispatcher.RegisterEventHandler("hello_world_plugin.sum.result", func(ctx context.Context, data []any) {
-		log.Println("Dispatcher: hello_world_plugin.sum.result (Example)", data)
+	dispatcher.Dispatch("hello_world.sum", ctx, nil, nil, []any{5, 7})
+	dispatcher.Dispatch("hello_world.sum", ctx, nil, nil, []any{10, 15})
+	dispatcher.Dispatch("hello_world.sum", ctx, nil, nil, []any{32461, 132})
+	dispatcher.Dispatch("hello_world.sum", ctx, nil, nil, []any{5, "b"})
+	dispatcher.RegisterEventHandler("hello_world.sum.result", func(ctx context.Context, conn *net.UDPConn, address *net.UDPAddr, data []any) {
+		log.Println("Dispatcher: hello_world.sum.result (Example)", data)
 	})
-	dispatcher.Dispatch("hello_world_plugin.capitalize", ctx, []any{"welcome evening, sydney! i'm taylor!"})
-	dispatcher.RegisterEventHandler("hello_world_plugin.capitalize.result", func(ctx context.Context, data []any) {
-		log.Println("Dispatcher: hello_world_plugin.capitalize.result (Example)", data)
+	dispatcher.Dispatch("hello_world.capitalize", ctx, nil, nil, []any{"welcome evening, sydney! i'm taylor!"})
+	dispatcher.RegisterEventHandler("hello_world.capitalize.result", func(ctx context.Context, conn *net.UDPConn, address *net.UDPAddr, data []any) {
+		log.Println("Dispatcher: hello_world.capitalize.result (Example)", data)
 	})
 
 	// create channel for os Signal values, can store only one signal
@@ -191,7 +191,7 @@ func main() {
 
 	// dispatch server stopped event
 	// don't delete this event because it may affect some code or plugins
-	dispatcher.Dispatch("OnServerStopped", ctx, nil)
+	dispatcher.Dispatch("OnServerStopped", ctx, nil, nil, nil)
 
 	close(quit) // signal all goroutines to exit
 	close(packetChan)
@@ -199,14 +199,14 @@ func main() {
 	log.Println("Shutting down")
 }
 
-func worker(id int, packetChan chan PacketData, wg *sync.WaitGroup, quit <-chan struct{}, conn *net.UDPConn) {
+func worker(id int, packetChan chan PacketData, wg *sync.WaitGroup, quit <-chan struct{}, conn *net.UDPConn, ctx context.Context) {
 	defer wg.Done() // signal to waitGroup that worker is done when function exits
 
 	// continuously receive packets from packetChan and process them
 	for {
 		select {
 		case packet := <-packetChan:
-			processPacket(id, packet, conn)
+			processPacket(id, packet, conn, ctx)
 		case <-quit:
 			log.Printf("Worker %d stopped\n", id)
 			return
@@ -214,36 +214,15 @@ func worker(id int, packetChan chan PacketData, wg *sync.WaitGroup, quit <-chan 
 	}
 }
 
-func processPacket(id int, packet PacketData, conn *net.UDPConn) {
+func processPacket(id int, packet PacketData, conn *net.UDPConn, ctx context.Context) {
 	log.Printf("Worker %d processing packet from %v: %v\n", id, packet.address, string(packet.data))
 
 	var messageData MessageData
 	err := json.Unmarshal(packet.data, &messageData)
 	if err != nil {
 		log.Println("failed to unmarshal packet:", err)
-
-		responseJson, responseError := response.Error[any](500, "", "", nil, err)
-		if responseError != nil {
-			log.Println("failed to marshall response:", responseError)
-		}
-
-		_, udpError := conn.WriteToUDP(responseJson, packet.address)
-		if udpError != nil {
-			log.Println("failed to write response:", udpError)
-		}
+		response.SendResponse[any](conn, packet.address, "", "", nil, err)
 	}
 
-	responseJson, responseError := response.Success[any]("", "", "Hello, Moony!")
-	if responseError != nil {
-		log.Println("failed to marshall response:", responseError)
-	}
-
-	_, udpError := conn.WriteToUDP(responseJson, packet.address)
-	if udpError != nil {
-		log.Println("failed to write response:", udpError)
-	}
-
-	// todo:
-	// 1. get plugin by name
-	// 2. call plugin method by name
+	dispatcher.Dispatch(messageData.Plugin+"."+messageData.Method, ctx, conn, packet.address, messageData.Data)
 }

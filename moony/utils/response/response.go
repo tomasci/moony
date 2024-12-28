@@ -2,6 +2,8 @@ package response
 
 import (
 	"encoding/json"
+	"log"
+	"net"
 )
 
 type Response[DataType interface{}] struct {
@@ -57,4 +59,25 @@ func Error[DataType interface{}](status int, plugin string, method string, data 
 	}
 
 	return encoded, nil
+}
+
+// SendResponse input data must be struct or string, it will be converted to json inside
+func SendResponse[DataType interface{}](conn *net.UDPConn, address *net.UDPAddr, plugin string, method string, data DataType, err error) {
+	var responseJson []byte
+	var responseError error
+
+	if err != nil {
+		responseJson, responseError = Error[any](500, plugin, method, nil, err)
+	} else {
+		responseJson, responseError = Success[any](plugin, method, data)
+	}
+
+	if responseError != nil {
+		log.Println("failed to marshall response:", responseError)
+	}
+
+	_, udpError := conn.WriteToUDP(responseJson, address)
+	if udpError != nil {
+		log.Println("failed to write response:", udpError)
+	}
 }
