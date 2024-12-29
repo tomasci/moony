@@ -24,11 +24,6 @@
         </toc-element>
     </toc-element>
     <toc-element toc-title="Server">
-        <toc-element toc-title="Plugins">
-            <toc-element topic="server-plugins-what-is-plugin.md"/>
-            <toc-element topic="server-plugins-how-plugins-work.md"/>
-            <toc-element topic="server-plugins-create-your-first-plugin.md"/>
-        </toc-element>
         <toc-element topic="server-basic-testing.md"/>
         <toc-element toc-title="Event Dispatcher">
             <toc-element topic="server-event-dispatcher-what-is-event-dispatcher.md"/>
@@ -44,6 +39,11 @@
             <toc-element topic="server-database-create-queries.md"/>
             <toc-element topic="server-database-generate-code-with-sqlc.md"/>
             <toc-element topic="server-database-use-database.md"/>
+        </toc-element>
+        <toc-element toc-title="Plugins">
+            <toc-element topic="server-plugins-what-is-plugin.md"/>
+            <toc-element topic="server-plugins-how-plugins-work.md"/>
+            <toc-element topic="server-plugins-create-your-first-plugin.md"/>
         </toc-element>
     </toc-element>
     <toc-element toc-title="Issues">
