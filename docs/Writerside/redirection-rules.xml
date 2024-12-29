@@ -6,4 +6,12 @@
         <accepts>page.html</accepts>
     </rule>
     -->
+    <rule id="691fe2b2">
+        <description>Created after removal of "help" from Moony</description>
+        <accepts>shell-commands-help.html</accepts>
+    </rule>
+    <rule id="7c493223">
+        <description>Created after removal of "Read Goose Docs" from Moony</description>
+        <accepts>read_goose_docs.html</accepts>
+    </rule>
 </rules>

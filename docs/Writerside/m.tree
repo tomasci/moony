@@ -14,19 +14,36 @@
         <toc-element topic="shell-what-is-shell.md"/>
         <toc-element topic="shell-load-shell.md"/>
         <toc-element toc-title="Shell commands">
-            <toc-element topic="shell-commands-help.md"/>
             <toc-element topic="shell-commands-dev.md"/>
             <toc-element topic="shell-commands-build.md"/>
             <toc-element topic="shell-commands-start.md"/>
+            <toc-element topic="shell-commands-migrate-create.md"/>
+            <toc-element topic="shell-commands-migrate-up.md"/>
+            <toc-element topic="shell-commands-migrate-down.md"/>
+            <toc-element topic="shell-commands-migrate-generate.md"/>
         </toc-element>
     </toc-element>
     <toc-element toc-title="Server">
+        <toc-element toc-title="Plugins">
+            <toc-element topic="server-plugins-what-is-plugin.md"/>
+            <toc-element topic="server-plugins-how-plugins-work.md"/>
+            <toc-element topic="server-plugins-create-your-first-plugin.md"/>
+        </toc-element>
         <toc-element topic="server-basic-testing.md"/>
         <toc-element toc-title="Event Dispatcher">
             <toc-element topic="server-event-dispatcher-what-is-event-dispatcher.md"/>
             <toc-element topic="server-event-dispatcher-server-events.md"/>
             <toc-element topic="server-event-dispatcher-dispatching-events.md"/>
             <toc-element topic="server-event-dispatcher-handling-events.md"/>
+        </toc-element>
+        <toc-element toc-title="Database">
+            <toc-element topic="server-database-configuration.md"/>
+            <toc-element topic="server-database-create-migrations.md"/>
+            <toc-element topic="server-database-apply-migrations.md"/>
+            <toc-element topic="server-database-rollback-migrations.md"/>
+            <toc-element topic="server-database-create-queries.md"/>
+            <toc-element topic="server-database-generate-code-with-sqlc.md"/>
+            <toc-element topic="server-database-use-database.md"/>
         </toc-element>
     </toc-element>
     <toc-element toc-title="Issues">

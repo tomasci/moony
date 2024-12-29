@@ -1,0 +1,3 @@
+# How plugins work
+
+TBD

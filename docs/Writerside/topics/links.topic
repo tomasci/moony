@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE topic SYSTEM "https://resources.jetbrains.com/writerside/1.0/html-entities.dtd">
+<topic xsi:noNamespaceSchemaLocation="https://resources.jetbrains.com/writerside/1.0/topic.v2.xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" is-library="true" id="links" title="Links">
+    <tip id="read_goose_docs">
+        <p>Read <a href="https://github.com/pressly/goose">Goose docs</a></p>
+    </tip>
+
+    <tip id="read_sqlc_docs">
+        <p>Read <a href="https://sqlc.dev">sqlc docs</a></p>
+    </tip>
+</topic>
