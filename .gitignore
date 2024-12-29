@@ -6,3 +6,5 @@ _client/project.godot
 *.svg.import
 *.godot
 Todo.md
+database/sqlc
+.env

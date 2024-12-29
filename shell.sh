@@ -5,26 +5,18 @@ clear
 # update chmod for scripts
 find ./scripts/ -type f -exec chmod +x {} \;
 
-alias help="moony:help"
+# run commands
 alias moony:dev="bash ./scripts/dev.sh"
 alias moony:build="bash ./scripts/build.sh"
 alias moony:start="./build/main"
 
-moony:help() {
-  echo "\nHelp"
-  echo ""
-  printf "%-20s %s\n" "help" "Show help"
-  printf "%-20s %s\n" "moony:help" ""
-  echo ""
-  printf "%-20s %s\n" "moony:dev" "Run server in dev mode"
-  printf "%-20s %s\n" "" "(basically will try to build and run)"
-  echo ""
-  printf "%-20s %s\n" "moony:build" "Build server"
-  echo ""
-  printf "%-20s %s\n" "moony:start" "Run server at 127.0.0.1"
-  printf "%-20s %s\n" "-host" "with host flag it will run at 0.0.0.0"
-  printf "%-20s %s\n" "" "run moony:build or moony:dev before start command"
-  echo ""
-}
+# migrations
+alias moony:migrate:up="bash ./scripts/migrate_up.sh"
+alias moony:migrate:down="bash ./scripts/migrate_down.sh"
+alias moony:migrate:create="bash ./scripts/migrate_create.sh"
+alias moony:migrate:generate="bash ./scripts/migrate_generate.sh"
+
+# display amount of written go-lines in project
+alias moony:stats="bash ./scripts/stats.sh"
 
 echo "moony environment loaded"
