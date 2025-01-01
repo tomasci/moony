@@ -1,0 +1,8 @@
+{
+  "name": "auth",
+  "title": "Simple Authorization System",
+  "description": "Authorize your clients like never before",
+  "version": "1.0.0",
+  "author": "tomasci",
+  "dependencies": []
+}
