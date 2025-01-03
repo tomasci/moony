@@ -7,8 +7,8 @@ var udp := PacketPeerUDP.new()
 # register your signals here
 # all signals must start with "moony_message_" prefix
 # you need this to understand what is going on in your code and where server code is
-signal moony_message_ping_ping
-signal moony_message_hello_world_capitalize
+signal moony_message_ping_ping_result
+signal moony_message_hello_world_capitalize_result
 # udp callbacks end
 
 func _ready() -> void:

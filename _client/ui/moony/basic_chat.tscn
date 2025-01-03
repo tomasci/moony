@@ -6,9 +6,17 @@
 [sub_resource type="GDScript" id="GDScript_nivo4"]
 script/source = "extends Button
 
+@export var messageInput: TextEdit
+
 func _pressed() -> void:
 	print(\"SendMessageButton click\")
-	MoonyClient.sendMessage(\"hello_world\", \"capitalize\", \"hello world!\")
+	
+	var val = messageInput.text
+	messageInput.text = \"\"
+	
+	if val != \"\":
+		MoonyClient.sendMessage(\"hello_world\", \"capitalize\", val)
+		
 	return
 "
 
@@ -31,7 +39,7 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 32.0
+offset_top = 80.0
 grow_horizontal = 2
 grow_vertical = 2
 horizontal_scroll_mode = 0
@@ -45,9 +53,17 @@ visible = false
 layout_mode = 2
 text = "<chat_message_here>"
 
-[node name="SendMessageButton" type="Button" parent="."]
+[node name="SendMessageButton" type="Button" parent="." node_paths=PackedStringArray("messageInput")]
 layout_mode = 0
 offset_right = 8.0
 offset_bottom = 8.0
 text = "Send Message"
 script = SubResource("GDScript_nivo4")
+messageInput = NodePath("../MessageInput")
+
+[node name="MessageInput" type="TextEdit" parent="."]
+layout_mode = 0
+offset_top = 33.0
+offset_right = 405.0
+offset_bottom = 80.0
+placeholder_text = "Enter your message"
