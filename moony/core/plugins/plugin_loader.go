@@ -5,14 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"moony/moony/core/event_dispatcher"
 	"os"
 	"path/filepath"
 	"plugin"
 )
 
 // LoadPlugins - use it to load all plugins from specified directory
-func LoadPlugins(pluginDir string, dispatcher *event_dispatcher.EventDispatcher) (int, error) {
+func LoadPlugins(pluginDir string) (int, error) {
 	// read provided plugins directory
 	dirs, err := os.ReadDir(pluginDir)
 	if err != nil {
@@ -86,7 +85,7 @@ func LoadPlugins(pluginDir string, dispatcher *event_dispatcher.EventDispatcher)
 		}
 
 		// initialize plugin
-		if err := plug.Init(context.Background(), dispatcher, config); err != nil {
+		if err := plug.Init(context.Background(), config); err != nil {
 			log.Println("failed to init plugin:", pluginPath, err)
 			continue
 		}

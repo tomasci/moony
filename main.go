@@ -9,13 +9,12 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
 	"log"
-	"moony/database/sqlc"
-	"moony/moony/core/event_dispatcher"
+	"moony/database/queries_client"
+	"moony/moony/core/dispatcher"
 	"moony/moony/core/plugins"
 	"moony/moony/utils"
 	"moony/moony/utils/response"
 	"net"
-	"net/url"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -41,13 +40,11 @@ type MessageData struct {
 	Data   []any  `json:"data"`
 }
 
-var dispatcher *event_dispatcher.EventDispatcher
-var dbConn *pgx.Conn
+var disp *dispatcher.EventDispatcher
 
 // init is go predefined function, it executes before main
 func init() {
 	log.Println("Server init")
-	ctx := context.Background()
 
 	// try to load .env file
 	err := godotenv.Load()
@@ -55,31 +52,8 @@ func init() {
 		log.Fatalf("failed to load .env file")
 	}
 
-	// get keys from env
-	postgresHost := os.Getenv("POSTGRES_HOST")
-	postgresDb := os.Getenv("POSTGRES_DB")
-	postgresUser := os.Getenv("POSTGRES_USER")
-	postgresPassword := os.Getenv("POSTGRES_PASSWORD")
-
-	// create db connection url
-	dsn := url.URL{
-		Scheme: "postgres",
-		Host:   postgresHost,
-		Path:   postgresDb,
-		User:   url.UserPassword(postgresUser, postgresPassword),
-	}
-
-	// try to connect to db
-	conn, err := pgx.Connect(ctx, dsn.String())
-	if err != nil {
-		log.Fatalf("error connecting to database: %s", err)
-	}
-
-	// make db connection global variable
-	dbConn = conn
-
 	// get dispatcher
-	dispatcher = event_dispatcher.GetGlobalDispatcher()
+	disp = dispatcher.GetGlobalDispatcher()
 
 	// get executable directory
 	exeDir, err := utils.GetExecutableDir()
@@ -89,7 +63,7 @@ func init() {
 
 	// try to load plugins
 	pluginsDir := filepath.Join(exeDir, "plugins")
-	if loadedPluginsCount, err := plugins.LoadPlugins(pluginsDir, dispatcher); err != nil {
+	if loadedPluginsCount, err := plugins.LoadPlugins(pluginsDir); err != nil {
 		log.Fatalf("failed to load plugins: %v\n", err)
 	} else {
 		log.Printf("Loaded %d plugins", loadedPluginsCount)
@@ -100,6 +74,11 @@ func main() {
 	log.Println("Server is in startup")
 	ctx := context.Background()
 
+	dbConn, err := queries_client.GetDBConnection()
+	if err != nil {
+		log.Fatalf("failed to connect to database: %v\n", err)
+	}
+
 	// defer db connection close here,
 	// because when placed in init function - it will close immediately
 	defer func(conn *pgx.Conn, ctx context.Context) {
@@ -108,26 +87,6 @@ func main() {
 			log.Printf("error closing connection: %s", err)
 		}
 	}(dbConn, ctx)
-
-	// temporary example of sqlc usage
-	queries := sqlc.New(dbConn)
-
-	users, err := queries.UsersFindMany(ctx)
-	if err != nil {
-		log.Println("error getting users:", err)
-	}
-	log.Println("Users:", users)
-
-	insertedUser, err := queries.UsersCreate(ctx, sqlc.UsersCreateParams{
-		Username: "test s1",
-		Password: "test s2",
-		Email:    "tests3@test.test",
-	})
-	if err != nil {
-		log.Println("error creating user:", err)
-	}
-	log.Println("User created:", insertedUser)
-	// end temporary example
 
 	// host flag definition
 	isHostPointer := flag.Bool("host", false, "Set this flag to listen on all interfaces (will start server at 0.0.0.0)")
@@ -197,9 +156,7 @@ func main() {
 		log.Println("Server started")
 		// dispatch server started event
 		// don't delete this event because it may affect some code or plugins
-		dispatcher.Dispatch("OnServerStarted", ctx, nil, nil, nil)
-		// but you can remove this one :)
-		dispatcher.Dispatch("CustomHelloWorldEvent", ctx, nil, nil, []any{"Hello world!"})
+		disp.Dispatch("OnServerStarted", ctx, nil, nil, nil)
 
 		for {
 			// buffer for incoming data
@@ -233,19 +190,6 @@ func main() {
 		}
 	}()
 
-	// these handlers are placed here just as an example
-	dispatcher.Dispatch("hello_world.sum", ctx, nil, nil, []any{5, 7})
-	dispatcher.Dispatch("hello_world.sum", ctx, nil, nil, []any{10, 15})
-	dispatcher.Dispatch("hello_world.sum", ctx, nil, nil, []any{32461, 132})
-	dispatcher.Dispatch("hello_world.sum", ctx, nil, nil, []any{5, "b"})
-	dispatcher.RegisterEventHandler("hello_world.sum.result", func(ctx context.Context, conn *net.UDPConn, address *net.UDPAddr, data []any) {
-		log.Println("Dispatcher: hello_world.sum.result (Example)", data)
-	})
-	dispatcher.Dispatch("hello_world.capitalize", ctx, nil, nil, []any{"welcome evening, sydney! i'm taylor!"})
-	dispatcher.RegisterEventHandler("hello_world.capitalize.result", func(ctx context.Context, conn *net.UDPConn, address *net.UDPAddr, data []any) {
-		log.Println("Dispatcher: hello_world.capitalize.result (Example)", data)
-	})
-
 	// create channel for os Signal values, can store only one signal
 	sigChan := make(chan os.Signal, 1)
 	// listen for SIGINT & SIGTERM and direct signals to sigChan
@@ -255,7 +199,7 @@ func main() {
 
 	// dispatch server stopped event
 	// don't delete this event because it may affect some code or plugins
-	dispatcher.Dispatch("OnServerStopped", ctx, nil, nil, nil)
+	disp.Dispatch("OnServerStopped", ctx, nil, nil, nil)
 
 	close(quit) // signal all goroutines to exit
 	close(packetChan)
@@ -288,5 +232,5 @@ func processPacket(id int, packet PacketData, conn *net.UDPConn, ctx context.Con
 		response.SendResponse[any](conn, packet.address, "", "", nil, err)
 	}
 
-	dispatcher.Dispatch(messageData.Plugin+"."+messageData.Method, ctx, conn, packet.address, messageData.Data)
+	disp.Dispatch(messageData.Plugin+"_"+messageData.Method, ctx, conn, packet.address, messageData.Data)
 }

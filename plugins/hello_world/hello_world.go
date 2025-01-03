@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"log"
-	"moony/moony/core/event_dispatcher"
+	"moony/moony/core/dispatcher"
+	"moony/moony/core/events"
 	"moony/moony/core/plugins"
-	"moony/moony/utils/response"
 	"net"
 	"strings"
 	"time"
@@ -22,42 +22,50 @@ func init() {
 	time.Sleep(1 * time.Second) // simulate some hard work during initialization...
 }
 
-func (plugin *HelloWorldPlugin) Init(ctx context.Context, dispatcher *event_dispatcher.EventDispatcher, config plugins.PluginConfig) error {
+func (plugin *HelloWorldPlugin) Init(ctx context.Context, config plugins.PluginConfig) error {
 	log.Println("Hello World Plugin Init() func")
 	plugin.config = config
+	d := dispatcher.GetGlobalDispatcher()
 
-	// this is how you usually register event handlers
-	dispatcher.RegisterEventHandler("OnServerStarted", func(eventCtx context.Context, conn *net.UDPConn, address *net.UDPAddr, data []any) {
+	// with "events" introduction, you don't need to use "raw" dispatcher anymore
+	// but, if you want to subscribe to some internal events (like events from server)
+	// you still can do it with d and GetGlobalDispatcher
+	d.RegisterEventHandler("OnServerStarted", func(eventCtx context.Context, conn *net.UDPConn, address *net.UDPAddr, data []any) {
 		log.Printf("%v: %v", plugin.config.Name, data)
 	})
 
-	// this is example, where you use plugin name as namespace and dot to separate plugin name and method name
-	dispatcher.RegisterEventHandler(plugin.config.Name+".sum", func(eventCtx context.Context, conn *net.UDPConn, address *net.UDPAddr, data []any) {
+	// for everything else use events
+	events.Create(plugin.config, "sum", func(data []any, eventProps events.EventProps) {
+		// parse input
 		a, aOk := data[0].(int)
 		b, bOk := data[1].(int)
+
+		// send error
 		if !aOk || !bOk {
-			log.Println(plugin.config.Name+".sum.result", "invalid input data")
-			return
+			events.SendError(plugin.config, "sum", "invalid_input_data", eventProps)
 		}
 
+		// calculate
 		result := plugin.sum(a, b)
 
-		// and when you want to return result, you call dispatch with the same event name, but .result suffix
-		dispatcher.Dispatch(plugin.config.Name+".sum.result", eventCtx, conn, address, []any{result})
+		// return result
+		events.Send(plugin.config, "sum", []any{result}, eventProps)
 	})
 
-	dispatcher.RegisterEventHandler(plugin.config.Name+".capitalize", func(eventCtx context.Context, conn *net.UDPConn, address *net.UDPAddr, data []any) {
+	events.Create(plugin.config, "capitalize", func(data []any, eventProps events.EventProps) {
+		// parse input
 		str, ok := data[0].(string)
+
+		// send error
 		if !ok {
-			log.Println(plugin.config.Name+".capitalize.result", "invalid input data")
-			return
+			events.SendError(plugin.config, "capitalize", "invalid_input_data", eventProps)
 		}
 
+		// transform string
 		result := plugin.capitalize(str)
-		if conn != nil && address != nil {
-			response.SendResponse[any](conn, address, plugin.config.Name, "capitalize", result, nil)
-		}
-		dispatcher.Dispatch(plugin.config.Name+".capitalize.result", eventCtx, conn, address, []any{result})
+
+		// return result
+		events.Send(plugin.config, "capitalize", []any{result}, eventProps)
 	})
 
 	return nil

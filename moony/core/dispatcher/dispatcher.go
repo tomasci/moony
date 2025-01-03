@@ -1,4 +1,7 @@
-package event_dispatcher
+package dispatcher
+
+// if you need "raw events" you can use dispatcher
+// but if you don't - just use events wrapper
 
 import (
 	"context"
