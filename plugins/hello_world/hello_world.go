@@ -43,6 +43,7 @@ func (plugin *HelloWorldPlugin) Init(ctx context.Context, config plugins.PluginC
 		// send error
 		if !aOk || !bOk {
 			events.SendError(plugin.config, "sum", "invalid_input_data", eventProps)
+			return
 		}
 
 		// calculate
@@ -59,6 +60,7 @@ func (plugin *HelloWorldPlugin) Init(ctx context.Context, config plugins.PluginC
 		// send error
 		if !ok {
 			events.SendError(plugin.config, "capitalize", "invalid_input_data", eventProps)
+			return
 		}
 
 		// transform string

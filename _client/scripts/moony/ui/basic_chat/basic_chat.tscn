@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://cqje3u1yjj86u"]
 
-[ext_resource type="Script" path="res://ui/moony/basic_chat_scripts/basic_chat.gd" id="1_psjhy"]
-[ext_resource type="PackedScene" uid="uid://c280p46r4uqru" path="res://ui/moony/moony_debug.tscn" id="2_hkj6m"]
+[ext_resource type="Script" path="res://scripts/moony/ui/basic_chat/scripts/basic_chat.gd" id="1_psjhy"]
+[ext_resource type="PackedScene" uid="uid://c280p46r4uqru" path="res://scripts/moony/ui/moony_debug/moony_debug.tscn" id="2_hkj6m"]
 
 [sub_resource type="GDScript" id="GDScript_nivo4"]
 script/source = "extends Button
@@ -15,7 +15,7 @@ func _pressed() -> void:
 	messageInput.text = \"\"
 	
 	if val != \"\":
-		MoonyClient.sendMessage(\"hello_world\", \"capitalize\", val)
+		MoonyClient.sendMessage(\"hello_world\", \"capitalize\", [val])
 		
 	return
 "

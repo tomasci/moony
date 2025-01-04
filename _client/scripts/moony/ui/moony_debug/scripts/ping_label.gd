@@ -24,7 +24,7 @@ func _onTimeout() -> void:
 	startTime = Time.get_ticks_msec()
 	elapsedTime = 0
 	timeoutOccured = false
-	MoonyClient.sendMessage("ping", "ping", "ping")
+	MoonyClient.sendMessage("ping", "ping", ["ping"])
 
 func _onMoonyMessagePing(data) -> void:
 	var responseTime = Time.get_ticks_msec()

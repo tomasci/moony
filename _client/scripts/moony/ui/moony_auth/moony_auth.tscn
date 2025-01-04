@@ -1,0 +1,144 @@
+[gd_scene load_steps=10 format=3 uid="uid://df2wfwb5lfagv"]
+
+[ext_resource type="Script" path="res://scripts/moony/ui/moony_auth/scripts/moony_auth.gd" id="1_b8g26"]
+[ext_resource type="Script" path="res://scripts/moony/ui/moony_auth/scripts/auth_create_account_button.gd" id="2_3a11u"]
+[ext_resource type="Script" path="res://scripts/moony/ui/moony_auth/scripts/login_button.gd" id="2_h4o13"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4dnhu"]
+bg_color = Color(0, 0.413942, 0.895956, 1)
+expand_margin_left = 4.0
+expand_margin_right = 4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yoiaj"]
+bg_color = Color(0, 0, 0, 1)
+expand_margin_left = 4.0
+expand_margin_right = 4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yo7su"]
+bg_color = Color(0.270673, 0.604401, 1, 1)
+expand_margin_left = 4.0
+expand_margin_right = 4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wh7lw"]
+bg_color = Color(0, 0.574274, 0.320731, 1)
+expand_margin_left = 4.0
+expand_margin_right = 4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ioo6s"]
+bg_color = Color(0, 0, 0, 1)
+expand_margin_left = 4.0
+expand_margin_right = 4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_otkfv"]
+bg_color = Color(3.7542e-06, 0.718332, 0.363289, 1)
+expand_margin_left = 4.0
+expand_margin_right = 4.0
+
+[node name="MoonyAuth" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_b8g26")
+
+[node name="Window" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -256.0
+offset_top = -256.0
+offset_right = 256.0
+offset_bottom = 180.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="WindowTitle" type="RichTextLabel" parent="Window"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -175.0
+offset_right = 175.0
+offset_bottom = 23.0
+grow_horizontal = 2
+bbcode_enabled = true
+text = "[center]Auth[/center]"
+fit_content = true
+scroll_active = false
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Window"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -85.5
+offset_top = -40.0
+offset_right = 85.5
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 16
+
+[node name="CreateAccountButton" type="Button" parent="Window/HBoxContainer"]
+layout_mode = 2
+theme_override_styles/hover = SubResource("StyleBoxFlat_4dnhu")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_yoiaj")
+theme_override_styles/normal = SubResource("StyleBoxFlat_yo7su")
+text = "Create account"
+script = ExtResource("2_3a11u")
+
+[node name="LoginButton" type="Button" parent="Window/HBoxContainer" node_paths=PackedStringArray("usernameInput", "passwordInput")]
+layout_mode = 2
+theme_override_styles/hover = SubResource("StyleBoxFlat_wh7lw")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ioo6s")
+theme_override_styles/normal = SubResource("StyleBoxFlat_otkfv")
+text = "Login"
+script = ExtResource("2_h4o13")
+usernameInput = NodePath("../../VBoxContainer/Username/Input")
+passwordInput = NodePath("../../VBoxContainer/Password/Input")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Window"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -103.0
+offset_top = -74.0
+offset_right = 103.0
+offset_bottom = 74.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 32
+
+[node name="Username" type="VBoxContainer" parent="Window/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="Window/VBoxContainer/Username"]
+layout_mode = 2
+text = "Username"
+
+[node name="Input" type="LineEdit" parent="Window/VBoxContainer/Username"]
+layout_mode = 2
+placeholder_text = "Username"
+
+[node name="Password" type="VBoxContainer" parent="Window/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="Window/VBoxContainer/Password"]
+layout_mode = 2
+text = "Password"
+
+[node name="Input" type="LineEdit" parent="Window/VBoxContainer/Password"]
+layout_mode = 2
+placeholder_text = "Password"
+secret = true

@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"errors"
+	"log"
 	"moony/database/queries_client"
 	"moony/database/sqlc"
+	"moony/moony/core/crypto"
 	"moony/moony/core/events"
 	"moony/moony/core/plugins"
 )
@@ -31,6 +34,7 @@ func (plugin *AuthPlugin) Init(ctx context.Context, config plugins.PluginConfig)
 		// validate
 		if !uOk || !pOk || !eOk {
 			events.SendError(plugin.config, "create", "invalid_input_data", eventProps)
+			return
 		}
 
 		// create user
@@ -39,17 +43,65 @@ func (plugin *AuthPlugin) Init(ctx context.Context, config plugins.PluginConfig)
 		// return error if not created
 		if err != nil {
 			events.SendError(plugin.config, "create", err.Error(), eventProps)
+			return
 		}
 
 		// return result
-		events.Send(plugin.config, "create", []any{result}, eventProps)
+		events.Send(plugin.config, "create", []any{result.ID}, eventProps)
+	})
+
+	events.Create(plugin.config, "login", func(data []any, eventProps events.EventProps) {
+		// parse input
+		username, uOk := data[0].(string)
+		password, pOk := data[1].(string)
+
+		// validate
+		if !uOk || !pOk {
+			events.SendError(plugin.config, "login", "invalid_input_data", eventProps)
+			return
+		}
+
+		// authorize user
+		result, err := plugin.login(ctx, username, password)
+
+		// return error is username or password is incorrect or user doesn't exist
+		if err != nil {
+			events.SendError(plugin.config, "login", err.Error(), eventProps)
+			return
+		}
+
+		// return result
+		// todo: send token
+		events.Send(plugin.config, "login", []any{result.ID}, eventProps)
 	})
 
 	return nil
 }
 
-func (plugin *AuthPlugin) login() {
-	return
+func (plugin *AuthPlugin) login(ctx context.Context, username string, password string) (*sqlc.User, error) {
+	qc, err := queries_client.GetQueriesClient()
+	if err != nil {
+		return nil, err
+	}
+
+	commonError := errors.New("invalid_username_or_password")
+
+	uniqueUser, err := qc.UsersFindUnique(ctx, username)
+	if err != nil {
+		return nil, commonError
+	}
+
+	passwordValidate, err := crypto.HashValidate(password, uniqueUser.Password)
+	if err != nil {
+		return nil, commonError
+	}
+
+	if passwordValidate {
+		log.Println("uniqueUser", uniqueUser)
+		return &uniqueUser, nil
+	}
+
+	return nil, commonError
 }
 
 func (plugin *AuthPlugin) create(ctx context.Context, username string, password string, email string) (*sqlc.User, error) {
@@ -58,9 +110,14 @@ func (plugin *AuthPlugin) create(ctx context.Context, username string, password 
 		return nil, err
 	}
 
+	passwordHash, err := crypto.HashCreate(password)
+	if err != nil {
+		return nil, err
+	}
+
 	insertedUser, err := qc.UsersCreate(ctx, sqlc.UsersCreateParams{
 		Username: username,
-		Password: password,
+		Password: passwordHash,
 		Email:    email,
 	})
 

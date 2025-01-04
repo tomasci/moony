@@ -9,6 +9,8 @@ var udp := PacketPeerUDP.new()
 # you need this to understand what is going on in your code and where server code is
 signal moony_message_ping_ping_result
 signal moony_message_hello_world_capitalize_result
+signal moony_message_auth_login_result
+signal moony_message_auth_create_result
 # udp callbacks end
 
 func _ready() -> void:
@@ -38,27 +40,37 @@ func _onIncomingPacket(incomingPacket: PackedByteArray) -> void:
 	var packetObject = JSON.parse_string(packetString)
 	print("_onIncomingPacket parsed object: ", packetBase64, packetString, packetObject)
 	
-	var plugin = packetObject["plugin"]
-	var method = packetObject["method"]
-	var data = packetObject["data"]
-	var signalName = "moony_message_" + str(plugin) + "_" + str(method)
+	var status = packetObject["status"]
 	
-	print("plugin: ", plugin)
-	print("method: ", method)
-	print("data: ", data)
-	print("signalName: ", signalName)
+	if status == 200:
+		var plugin = packetObject["plugin"]
+		var method = packetObject["method"]
+		var data = packetObject["data"]
+		var signalName = "moony_message_" + str(plugin) + "_" + str(method)
 	
-	emit_signal(signalName, data)
+		print("plugin: ", plugin)
+		print("method: ", method)
+		print("data: ", data)
+		print("signalName: ", signalName)
+	
+		emit_signal(signalName, data)
+	elif status == 500:
+		print("error happened...")
+		return
+	else:
+		print("unknown status")
+		return
+	
 	return
 
 # send messages to server
-func sendMessage(plugin: String, method: String, data) -> void:
+func sendMessage(plugin: String, method: String, data: Array) -> void:
 	print("MoonyClient sendMessage data: ", data)
 	
 	var preparedMessage = {
 		"plugin": plugin,
 		"method": method,
-		"data": [data]
+		"data": data
 	}
 	
 	# convert data to string 
