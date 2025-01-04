@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"moony/moony/core/dispatcher"
 	"moony/moony/core/events"
 	"moony/moony/core/plugins"
 )
@@ -15,7 +14,7 @@ func init() {
 	return
 }
 
-func (plugin *PingPlugin) Init(ctx context.Context, dispatcher *dispatcher.EventDispatcher, config plugins.PluginConfig) error {
+func (plugin *PingPlugin) Init(ctx context.Context, config plugins.PluginConfig) error {
 	plugin.config = config
 
 	// register plugin command

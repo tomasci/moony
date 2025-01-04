@@ -18,9 +18,12 @@ type EventProps struct {
 type EventCreateHandler func(data []any, eventProps EventProps)
 
 func Create(pluginConfig plugins.PluginConfig, eventName string, eventHandler EventCreateHandler) {
+	// get dispatcher
 	d := dispatcher.GetGlobalDispatcher()
+	// create full event name from plugin and event name, underscore is required
 	pluginEventName := pluginConfig.Name + "_" + eventName
 
+	// create event handler
 	d.RegisterEventHandler(pluginEventName, func(eventCtx context.Context, conn *net.UDPConn, address *net.UDPAddr, data []any) {
 		eventProps := EventProps{
 			eventCtx: eventCtx,
@@ -31,6 +34,7 @@ func Create(pluginConfig plugins.PluginConfig, eventName string, eventHandler Ev
 		eventHandler(data, eventProps)
 	})
 
+	// some logs
 	log.Println("Registered event:", pluginEventName, pluginEventName+"_result", pluginEventName+"_error")
 }
 
@@ -41,9 +45,11 @@ func SendError(pluginConfig plugins.PluginConfig, eventName string, errorMessage
 	log.Println(pluginEventName, errorMessageCode)
 
 	if eventProps.conn != nil && eventProps.address != nil {
+		// send response to client
 		response.SendResponse[any](eventProps.conn, eventProps.address, pluginConfig.Name, eventName+"_error", nil, errors.New(errorMessageCode))
 	}
 
+	// notify all local listeners
 	d.Dispatch(pluginEventName, eventProps.eventCtx, eventProps.conn, eventProps.address, []any{errorMessageCode})
 }
 
