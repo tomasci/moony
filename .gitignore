@@ -8,3 +8,4 @@ _client/project.godot
 Todo.md
 database/sqlc
 .env
+.DS_Store
