@@ -11,6 +11,7 @@ import (
 	"log"
 	"moony/database/queries_client"
 	"moony/moony/core/dispatcher"
+	"moony/moony/core/mvalidator"
 	"moony/moony/core/plugins"
 	"moony/moony/utils"
 	"moony/moony/utils/response"
@@ -51,6 +52,9 @@ func init() {
 	if err != nil {
 		log.Fatalf("failed to load .env file")
 	}
+
+	// initialize validator
+	mvalidator.InitializeValidator()
 
 	// get dispatcher
 	disp = dispatcher.GetGlobalDispatcher()
@@ -183,7 +187,7 @@ func main() {
 				// each received packet is sent into packetChan
 				// where they become available for processing by goroutines (and each goroutine is a separate worker?)
 				// todo: remove, debug purposes only
-				log.Printf("Incoming packet from %v (%d bytes): %v\n", clientAddress, n, string(buffer[:n]))
+				//log.Printf("Incoming packet from %v (%d bytes): %v\n", clientAddress, n, string(buffer[:n]))
 			case <-quit:
 				return // break loop if quit signaled
 			}
@@ -223,7 +227,7 @@ func worker(id int, packetChan chan PacketData, wg *sync.WaitGroup, quit <-chan 
 }
 
 func processPacket(id int, packet PacketData, conn *net.UDPConn, ctx context.Context) {
-	log.Printf("Worker %d processing packet from %v: %v\n", id, packet.address, string(packet.data))
+	//log.Printf("Worker %d processing packet from %v: %v\n", id, packet.address, string(packet.data))
 
 	var messageData MessageData
 	err := json.Unmarshal(packet.data, &messageData)

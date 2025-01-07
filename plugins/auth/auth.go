@@ -9,6 +9,7 @@ import (
 	"moony/moony/core/crypto"
 	"moony/moony/core/events"
 	"moony/moony/core/plugins"
+	"moony/plugins/auth/validator"
 )
 
 type AuthPlugin struct {
@@ -26,19 +27,15 @@ func (plugin *AuthPlugin) Init(ctx context.Context, config plugins.PluginConfig)
 	plugin.config = config
 
 	events.Create(plugin.config, "create", func(data []any, eventProps events.EventProps) {
-		// parse input
-		username, uOk := data[0].(string)
-		password, pOk := data[1].(string)
-		email, eOk := data[2].(string)
-
-		// validate
-		if !uOk || !pOk || !eOk {
-			events.SendError(plugin.config, "create", "invalid_input_data", eventProps)
+		// parse & validate input
+		input, _, err := validator.ValidateCreateInput(data)
+		if err != nil {
+			events.SendError(plugin.config, "create", err.Error(), eventProps)
 			return
 		}
 
 		// create user
-		result, err := plugin.create(ctx, username, password, email)
+		result, err := plugin.create(ctx, input)
 
 		// return error if not created
 		if err != nil {
@@ -51,18 +48,15 @@ func (plugin *AuthPlugin) Init(ctx context.Context, config plugins.PluginConfig)
 	})
 
 	events.Create(plugin.config, "login", func(data []any, eventProps events.EventProps) {
-		// parse input
-		username, uOk := data[0].(string)
-		password, pOk := data[1].(string)
-
-		// validate
-		if !uOk || !pOk {
-			events.SendError(plugin.config, "login", "invalid_input_data", eventProps)
+		// parse & validate input
+		input, _, err := validator.ValidateLoginInput(data)
+		if err != nil {
+			events.SendError(plugin.config, "login", err.Error(), eventProps)
 			return
 		}
 
 		// authorize user
-		result, err := plugin.login(ctx, username, password)
+		result, err := plugin.login(ctx, input)
 
 		// return error is username or password is incorrect or user doesn't exist
 		if err != nil {
@@ -78,7 +72,7 @@ func (plugin *AuthPlugin) Init(ctx context.Context, config plugins.PluginConfig)
 	return nil
 }
 
-func (plugin *AuthPlugin) login(ctx context.Context, username string, password string) (*sqlc.User, error) {
+func (plugin *AuthPlugin) login(ctx context.Context, input *validator.AuthLoginInput) (*sqlc.User, error) {
 	qc, err := queries_client.GetQueriesClient()
 	if err != nil {
 		return nil, err
@@ -86,12 +80,12 @@ func (plugin *AuthPlugin) login(ctx context.Context, username string, password s
 
 	commonError := errors.New("invalid_username_or_password")
 
-	uniqueUser, err := qc.UsersFindUnique(ctx, username)
+	uniqueUser, err := qc.UsersFindUnique(ctx, input.Username)
 	if err != nil {
 		return nil, commonError
 	}
 
-	passwordValidate, err := crypto.HashValidate(password, uniqueUser.Password)
+	passwordValidate, err := crypto.HashValidate(input.Password, uniqueUser.Password)
 	if err != nil {
 		return nil, commonError
 	}
@@ -104,21 +98,21 @@ func (plugin *AuthPlugin) login(ctx context.Context, username string, password s
 	return nil, commonError
 }
 
-func (plugin *AuthPlugin) create(ctx context.Context, username string, password string, email string) (*sqlc.User, error) {
+func (plugin *AuthPlugin) create(ctx context.Context, input *validator.AuthCreateInput) (*sqlc.User, error) {
 	qc, err := queries_client.GetQueriesClient()
 	if err != nil {
 		return nil, err
 	}
 
-	passwordHash, err := crypto.HashCreate(password)
+	passwordHash, err := crypto.HashCreate(input.Password)
 	if err != nil {
 		return nil, err
 	}
 
 	insertedUser, err := qc.UsersCreate(ctx, sqlc.UsersCreateParams{
-		Username: username,
+		Username: input.Username,
 		Password: passwordHash,
-		Email:    email,
+		Email:    input.Email,
 	})
 
 	if err != nil {
