@@ -7,7 +7,8 @@ func _pressed() -> void:
 	var username = usernameInput.text
 	var password = passwordInput.text 
 	
-	if username != "" and password != "":
-		MoonyClient.sendMessage("auth", "login", [username, password])
+	#if username != "" and password != "":
+	# use server validation
+	MoonyClient.sendMessage("auth", "login", [username, password])
 	
 	return

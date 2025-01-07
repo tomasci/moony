@@ -3,6 +3,7 @@ build
 _client/.godot
 _client/icon.svg
 _client/project.godot
+_client/export_presets.cfg
 *.svg.import
 *.godot
 Todo.md
