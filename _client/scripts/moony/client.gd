@@ -7,7 +7,7 @@ var udp := PacketPeerUDP.new()
 # register your signals here
 # all signals must start with "moony_message_" prefix
 # you need this to understand what is going on in your code and where server code is
-signal moony_message_ping_ping_result
+signal moony_message_msync_ping_result
 signal moony_message_hello_world_capitalize_result
 signal moony_message_auth_login_result
 signal moony_message_auth_create_result
@@ -17,6 +17,16 @@ func _ready() -> void:
 	print("moony client loaded")
 	# "connect" to server (will not send any packets actually, makes is_socket_connected = true)
 	udp.connect_to_host(MoonyConfig.udpAddress, MoonyConfig.udpPort)
+	# and this command will send connect event to server
+	MoonyClient.sendMessage("msync", "connect", [])
+	return
+
+func _notification(what) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		print("Game closed.")
+		# update server when user closes the game
+		# it will not help, when user force quit game, but at least in this case
+		MoonyClient.sendMessage("msync", "disconnect", [])
 	return
 
 func _process(delta: float) -> void:
