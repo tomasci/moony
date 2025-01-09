@@ -67,7 +67,9 @@ func (plugin *HelloWorldPlugin) Init(ctx context.Context, config plugins.PluginC
 		result := plugin.capitalize(str)
 
 		// return result
-		events.Send(plugin.config, "capitalize", []any{result}, eventProps)
+		//events.Send(plugin.config, "capitalize", []any{result}, eventProps)
+		// return result to everyone
+		events.Broadcast(plugin.config, "capitalize", []any{result}, eventProps)
 	})
 
 	return nil

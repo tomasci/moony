@@ -17,8 +17,9 @@ alias moony:migrate:create="bash ./scripts/migrate_create.sh"
 alias moony:migrate:generate="bash ./scripts/migrate_generate.sh"
 
 # redis
-alias moony:redis:dev="bash ./scripts/run_redis_dev_server.sh"
+alias moony:redis:setup="bash ./scripts/run_redis_setup.sh"
 alias moony:redis:cli="bash ./scripts/run_redis_cli.sh"
+alias moony:redis:dev="bash ./scripts/run_redis_dev.sh"
 
 # display amount of written go-lines in project
 alias moony:stats="bash ./scripts/stats.sh"

@@ -101,6 +101,12 @@ func main() {
 		log.Fatalf("failed to connect to redis: %v\n", err)
 	}
 
+	defer func() {
+		if err := redisClient.Close(); err != nil {
+			log.Println("failed to close redis connection", err)
+		}
+	}()
+
 	// try save value to redis
 	err = redisClient.Set(ctx, "moony", "It works!", 10*time.Second).Err()
 	if err != nil {

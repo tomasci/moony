@@ -1,8 +1,0 @@
-{
-  "name": "ping",
-  "title": "Ping? Pong!",
-  "description": "Helps to measure response time on the client side",
-  "version": "1.0.0",
-  "author": "tomasci",
-  "dependencies": []
-}
