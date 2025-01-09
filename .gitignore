@@ -8,4 +8,5 @@ _client/export_presets.cfg
 *.godot
 Todo.md
 database/sqlc
+database/redis/*.rdb
 .env

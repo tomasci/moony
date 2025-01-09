@@ -10,6 +10,7 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"moony/database/queries_client"
+	"moony/database/redis"
 	"moony/moony/core/dispatcher"
 	"moony/moony/core/mvalidator"
 	"moony/moony/core/plugins"
@@ -22,6 +23,7 @@ import (
 	"runtime"
 	"sync"
 	"syscall"
+	"time"
 )
 
 const (
@@ -78,6 +80,7 @@ func main() {
 	log.Println("Server is in startup")
 	ctx := context.Background()
 
+	// initialize postgres db
 	dbConn, err := queries_client.GetDBConnection()
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v\n", err)
@@ -91,6 +94,26 @@ func main() {
 			log.Printf("error closing connection: %s", err)
 		}
 	}(dbConn, ctx)
+
+	// initialize redis
+	redisClient, err := redis.GetRedisClient()
+	if err != nil {
+		log.Fatalf("failed to connect to redis: %v\n", err)
+	}
+
+	// try save value to redis
+	err = redisClient.Set(ctx, "moony", "It works!", 10*time.Second).Err()
+	if err != nil {
+		log.Fatalf("failed to save value in redis: %v\n", err)
+	}
+
+	// try to get value from redis
+	var val string
+	val, err = redisClient.Get(ctx, "moony").Result()
+	if err != nil {
+		log.Fatalf("failed to get value from redis: %v\n", err)
+	}
+	log.Println("Redis:", val)
 
 	// host flag definition
 	isHostPointer := flag.Bool("host", false, "Set this flag to listen on all interfaces (will start server at 0.0.0.0)")
