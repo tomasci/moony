@@ -1,5 +1,11 @@
 package godot
 
+import (
+	"github.com/google/uuid"
+	"math/rand/v2"
+	"moony/moony/bridges/godot/materials"
+)
+
 // godot bridge concept
 
 type ID string
@@ -23,16 +29,16 @@ type Transform struct {
 
 type Object struct {
 	// link to object
-	ID ID `json:"id"`
+	ID uuid.UUID `json:"id"`
 	// object size
 	Size *Size `json:"size"`
 	// object transform props
 	Transform *Transform `json:"transform"`
 }
 
-func SpawnObject(at Position, object Object) {
-	// todo: convert it into transferable format
-	return
+// SpawnObject – this function like any other function here is to standardize server response for the same action called from different places
+func SpawnObject(at Position, object Object, material materials.Material) []any {
+	return []any{object, at, material}
 }
 
 func Move(to Position, object Object) {
@@ -49,4 +55,8 @@ func GetObject(id ID) {
 
 func RemoveObject(id ID) {
 	return
+}
+
+func RandomFloat(min float64, max float64) float64 {
+	return min + rand.Float64()*(max-min)
 }

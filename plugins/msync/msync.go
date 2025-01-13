@@ -57,6 +57,8 @@ func (plugin *MSyncPlugin) Init(ctx context.Context, config plugins.PluginConfig
 		events.Send(plugin.config, "ping", []any{result}, eventProps)
 	})
 
+	// todo: listen for onServerStopped event, run cleanup (clean redis)
+
 	return nil
 }
 

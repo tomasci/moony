@@ -2,14 +2,18 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"log"
 	"moony/database/queries_client"
+	"moony/database/redis"
 	"moony/database/sqlc"
 	"moony/moony/core/crypto"
+	"moony/moony/core/dispatcher"
 	"moony/moony/core/events"
 	"moony/moony/core/plugins"
 	"moony/plugins/auth/validator"
+	"net"
 )
 
 type AuthPlugin struct {
@@ -25,6 +29,7 @@ func init() {
 
 func (plugin *AuthPlugin) Init(ctx context.Context, config plugins.PluginConfig) error {
 	plugin.config = config
+	d := dispatcher.GetGlobalDispatcher()
 
 	events.Create(plugin.config, "create", func(data []any, eventProps events.EventProps) {
 		// parse & validate input
@@ -35,7 +40,7 @@ func (plugin *AuthPlugin) Init(ctx context.Context, config plugins.PluginConfig)
 		}
 
 		// create user
-		result, err := plugin.create(ctx, input)
+		result, err := plugin.create(eventProps, input)
 
 		// return error if not created
 		if err != nil {
@@ -56,7 +61,7 @@ func (plugin *AuthPlugin) Init(ctx context.Context, config plugins.PluginConfig)
 		}
 
 		// authorize user
-		result, err := plugin.login(ctx, input)
+		result, err := plugin.login(eventProps, input)
 
 		// return error is username or password is incorrect or user doesn't exist
 		if err != nil {
@@ -69,10 +74,20 @@ func (plugin *AuthPlugin) Init(ctx context.Context, config plugins.PluginConfig)
 		events.Send(plugin.config, "login", []any{result.ID}, eventProps)
 	})
 
+	d.RegisterEventHandler("msync_disconnect", func(ctx context.Context, conn *net.UDPConn, address *net.UDPAddr, data []any) {
+		plugin.cleanup(ctx, address)
+	})
+
 	return nil
 }
 
-func (plugin *AuthPlugin) login(ctx context.Context, input *validator.AuthLoginInput) (*sqlc.User, error) {
+func (plugin *AuthPlugin) login(eventProps events.EventProps, input *validator.AuthLoginInput) (*sqlc.User, error) {
+	// get redis client
+	state, err := redis.GetRedisClient()
+	if err != nil {
+		return nil, err
+	}
+
 	qc, err := queries_client.GetQueriesClient()
 	if err != nil {
 		return nil, err
@@ -80,7 +95,7 @@ func (plugin *AuthPlugin) login(ctx context.Context, input *validator.AuthLoginI
 
 	commonError := errors.New("invalid_username_or_password")
 
-	uniqueUser, err := qc.UsersFindUnique(ctx, input.Username)
+	uniqueUser, err := qc.UsersFindUnique(eventProps.EventCtx, input.Username)
 	if err != nil {
 		return nil, commonError
 	}
@@ -91,14 +106,25 @@ func (plugin *AuthPlugin) login(ctx context.Context, input *validator.AuthLoginI
 	}
 
 	if passwordValidate {
-		log.Println("uniqueUser", uniqueUser)
+		// cache user info
+		var uniqueUserJson []byte
+		uniqueUserJson, err = json.Marshal(uniqueUser)
+		if err != nil {
+			return nil, err
+		}
+
+		err = state.Set(eventProps.EventCtx, "user:"+eventProps.Address.String(), uniqueUserJson, 0).Err()
+		if err != nil {
+			return nil, err
+		}
+
 		return &uniqueUser, nil
 	}
 
 	return nil, commonError
 }
 
-func (plugin *AuthPlugin) create(ctx context.Context, input *validator.AuthCreateInput) (*sqlc.User, error) {
+func (plugin *AuthPlugin) create(eventProps events.EventProps, input *validator.AuthCreateInput) (*sqlc.User, error) {
 	qc, err := queries_client.GetQueriesClient()
 	if err != nil {
 		return nil, err
@@ -109,7 +135,7 @@ func (plugin *AuthPlugin) create(ctx context.Context, input *validator.AuthCreat
 		return nil, err
 	}
 
-	insertedUser, err := qc.UsersCreate(ctx, sqlc.UsersCreateParams{
+	insertedUser, err := qc.UsersCreate(eventProps.EventCtx, sqlc.UsersCreateParams{
 		Username: input.Username,
 		Password: passwordHash,
 		Email:    input.Email,
@@ -120,6 +146,17 @@ func (plugin *AuthPlugin) create(ctx context.Context, input *validator.AuthCreat
 	}
 
 	return &insertedUser, nil
+}
+
+func (plugin *AuthPlugin) cleanup(ctx context.Context, address *net.UDPAddr) {
+	// get redis client
+	state, err := redis.GetRedisClient()
+	if err != nil {
+		log.Println("error getting redis client")
+		return
+	}
+
+	state.Del(ctx, "user:"+address.String())
 }
 
 var PluginInstance AuthPlugin

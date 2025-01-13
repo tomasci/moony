@@ -2,13 +2,16 @@ package main
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"log"
+	"moony/database/redis"
+	"moony/moony/bridges/godot"
+	"moony/moony/bridges/godot/materials"
 	"moony/moony/core/dispatcher"
 	"moony/moony/core/events"
 	"moony/moony/core/plugins"
 	"net"
 	"strings"
-	"time"
 	"unicode"
 )
 
@@ -19,7 +22,7 @@ type HelloWorldPlugin struct {
 func init() {
 	// you can use this function if you need to do something even before Init method called
 	log.Println("Hello World Plugin init() func")
-	time.Sleep(1 * time.Second) // simulate some hard work during initialization...
+	//time.Sleep(1 * time.Second) // simulate some hard work during initialization...
 }
 
 func (plugin *HelloWorldPlugin) Init(ctx context.Context, config plugins.PluginConfig) error {
@@ -72,6 +75,16 @@ func (plugin *HelloWorldPlugin) Init(ctx context.Context, config plugins.PluginC
 		events.Broadcast(plugin.config, "capitalize", []any{result}, eventProps)
 	})
 
+	events.Create(plugin.config, "spawn_object", func(data []any, eventProps events.EventProps) {
+		result, err := plugin.spawnObject(eventProps)
+		if err != nil {
+			log.Println("spawn_object error:", err)
+			return
+		}
+
+		events.Broadcast(plugin.config, "spawn_object", result, eventProps)
+	})
+
 	return nil
 }
 
@@ -88,6 +101,38 @@ func (plugin *HelloWorldPlugin) capitalize(str string) string {
 		}
 	}
 	return strings.Join(words, " ")
+}
+
+func (plugin *HelloWorldPlugin) spawnObject(eventProps events.EventProps) ([]any, error) {
+	// get redis client
+	state, err := redis.GetRedisClient()
+	if err != nil {
+		return nil, err
+	}
+
+	// generate object id
+	objectId := uuid.New()
+
+	// track objects
+	// just so you know how much object spawned, maybe for cleanup etc.
+	// maybe for statistics, who knows
+	err = state.SAdd(eventProps.EventCtx, "world_objects", objectId.String()).Err()
+	if err != nil {
+		return nil, err
+	}
+
+	// todo: first need to create object
+	// only then - spawn
+	// also, need to set object id
+	object := godot.SpawnObject(godot.Position{
+		X: godot.RandomFloat(-3.50, 3.50),
+		Y: godot.RandomFloat(-3.50, 3.50),
+		Z: godot.RandomFloat(-3.50, 3.50),
+	}, godot.Object{
+		ID: objectId,
+	}, materials.Random())
+
+	return object, nil
 }
 
 var PluginInstance HelloWorldPlugin
