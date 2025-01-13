@@ -8,6 +8,6 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if MoonyAuthState.moonyAuthClientId:
-		text = "[center]%s[/center]" % MoonyAuthState.moonyAuthClientId
+		text = "[right]%s[/right]" % MoonyAuthState.moonyAuthClientId
 		self.visible = true
 	return

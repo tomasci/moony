@@ -1,7 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://cqje3u1yjj86u"]
+[gd_scene load_steps=3 format=3 uid="uid://cqje3u1yjj86u"]
 
 [ext_resource type="Script" path="res://scripts/moony/ui/basic_chat/scripts/basic_chat.gd" id="1_psjhy"]
-[ext_resource type="PackedScene" uid="uid://c280p46r4uqru" path="res://scripts/moony/ui/moony_debug/moony_debug.tscn" id="2_hkj6m"]
 
 [sub_resource type="GDScript" id="GDScript_nivo4"]
 script/source = "extends Button
@@ -31,17 +30,11 @@ script = ExtResource("1_psjhy")
 chatMessagePrefab = NodePath("ScrollContainer/VBoxContainer/ChatMessagePrefab")
 chatMessageListContainer = NodePath("ScrollContainer/VBoxContainer")
 
-[node name="MoonyDebug" parent="." instance=ExtResource("2_hkj6m")]
-layout_mode = 1
-
 [node name="ScrollContainer" type="ScrollContainer" parent="."]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = 80.0
-grow_horizontal = 2
-grow_vertical = 2
+offset_top = 81.0
+offset_right = 405.0
+offset_bottom = 275.0
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 2
 

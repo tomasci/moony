@@ -9,6 +9,7 @@ var udp := PacketPeerUDP.new()
 # you need this to understand what is going on in your code and where server code is
 signal moony_message_msync_ping_result
 signal moony_message_hello_world_capitalize_result
+signal moony_message_hello_world_spawn_object_result
 signal moony_message_auth_login_result
 signal moony_message_auth_create_result
 # udp callbacks end

@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://bxmekcv6edg3t"]
+[gd_scene load_steps=8 format=3 uid="uid://bxmekcv6edg3t"]
 
 [ext_resource type="PackedScene" uid="uid://cqje3u1yjj86u" path="res://scripts/moony/ui/basic_chat/basic_chat.tscn" id="1_p6pcx"]
 [ext_resource type="PackedScene" uid="uid://df2wfwb5lfagv" path="res://scripts/moony/ui/moony_auth/moony_auth.tscn" id="2_rls8c"]
 [ext_resource type="PackedScene" uid="uid://bg27kc8p034ca" path="res://scripts/moony/ui/moony_auth/moony_auth_create.tscn" id="3_vnphb"]
+[ext_resource type="PackedScene" uid="uid://c280p46r4uqru" path="res://scripts/moony/ui/moony_debug/moony_debug.tscn" id="4_lquhd"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_2dw0l"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -20,7 +21,7 @@ glow_enabled = true
 [node name="Moony" type="Node3D"]
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(0.946863, -0.1095, 0.302425, 0, 0.940264, 0.340445, -0.321638, -0.322355, 0.890301, 1.06231, 1.13947, 2.97189)
+transform = Transform3D(0.946863, -0.1095, 0.302425, -0.00404171, 0.936139, 0.351606, -0.321612, -0.334145, 0.885953, 2.8033, 3.94972, 8.67793)
 
 [node name="CSGBox3D" type="CSGBox3D" parent="."]
 
@@ -34,6 +35,16 @@ transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75
 shadow_enabled = true
 
 [node name="BasicChat" parent="." instance=ExtResource("1_p6pcx")]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_right = 0.0
+offset_top = -277.0
+offset_bottom = -277.0
+grow_horizontal = 1
+grow_vertical = 0
+
+[node name="MoonyDebug" parent="." instance=ExtResource("4_lquhd")]
+offset_bottom = -1078.0
 
 [node name="MoonyAuth" parent="." instance=ExtResource("2_rls8c")]
 

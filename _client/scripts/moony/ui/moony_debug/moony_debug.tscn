@@ -1,7 +1,35 @@
-[gd_scene load_steps=3 format=3 uid="uid://c280p46r4uqru"]
+[gd_scene load_steps=6 format=3 uid="uid://c280p46r4uqru"]
 
 [ext_resource type="Script" path="res://scripts/moony/ui/moony_debug/scripts/ping_label.gd" id="1_w5163"]
 [ext_resource type="Script" path="res://scripts/moony/ui/moony_debug/scripts/client_id_label.gd" id="2_l5krp"]
+
+[sub_resource type="GDScript" id="GDScript_lxb6s"]
+script/source = "extends Button
+
+func _pressed() -> void:
+	MoonyClient.sendMessage(\"hello_world\", \"spawn_object\", [])
+	return
+"
+
+[sub_resource type="GDScript" id="GDScript_soqtt"]
+script/source = "extends Button
+
+func _pressed() -> void:
+	for n in range(10):
+		MoonyClient.sendMessage(\"hello_world\", \"spawn_object\", [])
+		await get_tree().create_timer(0.05).timeout
+	return
+"
+
+[sub_resource type="GDScript" id="GDScript_tbjfn"]
+script/source = "extends Button
+
+func _pressed() -> void:
+	for n in range(10):
+		MoonyClient.sendMessage(\"hello_world\", \"spawn_object\", [])
+		#await get_tree().create_timer(0.05).timeout
+	return
+"
 
 [node name="MoonyDebug" type="Control"]
 layout_mode = 3
@@ -11,31 +39,47 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="PingLabel" type="RichTextLabel" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="SpawnObjectButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Spawn object (1)"
+script = SubResource("GDScript_lxb6s")
+
+[node name="SpawnMultipleObjectButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Spawn object (10)"
+script = SubResource("GDScript_soqtt")
+
+[node name="SpawnMultipleObjectNoDelayButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Spawn object (10) (no delay)"
+script = SubResource("GDScript_tbjfn")
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -75.0
-offset_bottom = 23.0
+offset_left = -652.0
+offset_bottom = 142.0
 grow_horizontal = 0
+
+[node name="PingLabel" type="RichTextLabel" parent="VBoxContainer2"]
+layout_mode = 2
 bbcode_enabled = true
-text = "<ping>ms"
+text = "[right]<ping>ms[/right]"
 fit_content = true
 scroll_active = false
 script = ExtResource("1_w5163")
 
-[node name="ClientIdLabel" type="RichTextLabel" parent="."]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -268.0
-offset_right = 268.0
-offset_bottom = 23.0
-grow_horizontal = 2
+[node name="ClientIdLabel" type="RichTextLabel" parent="VBoxContainer2"]
+layout_mode = 2
 bbcode_enabled = true
-text = "[center]<client id>[/center]"
+text = "[right]<client id>[/right]"
 fit_content = true
 scroll_active = false
 script = ExtResource("2_l5krp")

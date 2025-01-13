@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3 uid="uid://dv65qur2a4dij"]
+
+[ext_resource type="Script" path="res://scripts/moony/objects/moony_object.gd" id="1_kwchb"]
+
+[node name="Sphere" type="Node3D" node_paths=PackedStringArray("label3d")]
+script = ExtResource("1_kwchb")
+label3d = NodePath("Label3D")
+
+[node name="Model" type="CSGBox3D" parent="."]
+size = Vector3(0.5, 0.5, 0.5)
+
+[node name="Model2" type="CSGSphere3D" parent="."]
+visible = false
+radius = 0.25
+radial_segments = 32
+rings = 32
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.744887, 0)
+visible = false
+text = "<object id>"

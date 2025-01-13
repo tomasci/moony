@@ -128,6 +128,7 @@ text = "Username"
 
 [node name="Input" type="LineEdit" parent="Window/VBoxContainer/Username"]
 layout_mode = 2
+text = "test1"
 placeholder_text = "Username"
 
 [node name="Password" type="VBoxContainer" parent="Window/VBoxContainer"]
@@ -140,5 +141,6 @@ text = "Password"
 
 [node name="Input" type="LineEdit" parent="Window/VBoxContainer/Password"]
 layout_mode = 2
+text = "1q2w3easdzxc"
 placeholder_text = "Password"
 secret = true
