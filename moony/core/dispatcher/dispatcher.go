@@ -66,6 +66,9 @@ func (d *EventDispatcher) RegisterEventHandler(eventType string, handler EventHa
 // Dispatch - trigger all handlers by eventType
 // same thing with receiver here and in any other cases
 func (d *EventDispatcher) Dispatch(eventType string, ctx context.Context, conn *net.UDPConn, address *net.UDPAddr, data []any) {
+	// todo: at some point in future this part must be refactored
+	// todo: to implement some queue (worker pool pattern https://gobyexample.com/worker-pools)
+
 	// read lock to ensure safe concurrent reads from handlers map
 	// basically, no new handlers will be added until current operation is done
 	d.mu.RLock()

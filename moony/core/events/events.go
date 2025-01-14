@@ -3,6 +3,7 @@ package events
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"moony/database/redis"
 	"moony/moony/core/dispatcher"
@@ -22,7 +23,7 @@ func Create(pluginConfig plugins.PluginConfig, eventName string, eventHandler Ev
 	// get dispatcher
 	d := dispatcher.GetGlobalDispatcher()
 	// create full event name from plugin and event name, underscore is required
-	pluginEventName := pluginConfig.Name + "_" + eventName
+	pluginEventName := fmt.Sprintf("%s_%s", pluginConfig.Name, eventName)
 
 	// create event handler
 	d.RegisterEventHandler(pluginEventName, func(eventCtx context.Context, conn *net.UDPConn, address *net.UDPAddr, data []any) {
@@ -41,7 +42,7 @@ func Create(pluginConfig plugins.PluginConfig, eventName string, eventHandler Ev
 
 func SendError(pluginConfig plugins.PluginConfig, eventName string, errorMessageCode string, eventProps EventProps) {
 	d := dispatcher.GetGlobalDispatcher()
-	pluginEventName := pluginConfig.Name + "_" + eventName + "_error"
+	pluginEventName := fmt.Sprintf("%s_%s_%s", pluginConfig.Name, eventName, "error")
 
 	log.Println(pluginEventName, errorMessageCode)
 
@@ -56,7 +57,7 @@ func SendError(pluginConfig plugins.PluginConfig, eventName string, errorMessage
 
 func Send(pluginConfig plugins.PluginConfig, eventName string, data []any, eventProps EventProps) {
 	d := dispatcher.GetGlobalDispatcher()
-	pluginEventName := pluginConfig.Name + "_" + eventName + "_result"
+	pluginEventName := fmt.Sprintf("%s_%s_%s", pluginConfig.Name, eventName, "result")
 
 	if eventProps.Conn != nil && eventProps.Address != nil {
 		response.SendResponse(eventProps.Conn, eventProps.Address, pluginConfig.Name, eventName+"_result", data, nil)
@@ -72,7 +73,7 @@ func BroadcastError() {
 
 func Broadcast(pluginConfig plugins.PluginConfig, eventName string, data []any, eventProps EventProps) {
 	d := dispatcher.GetGlobalDispatcher()
-	pluginEventName := pluginConfig.Name + "_" + eventName + "_result"
+	pluginEventName := fmt.Sprintf("%s_%s_%s", pluginConfig.Name, eventName, "result")
 
 	// get redis client
 	state, err := redis.GetRedisClient()
