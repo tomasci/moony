@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"context"
 	"github.com/redis/go-redis/v9"
 	"log"
 	"os"
@@ -40,6 +41,11 @@ func InitializeRedis() {
 			DB:       dbInt,
 			Protocol: 3,
 		})
+
+		_, initError = rdb.Ping(context.Background()).Result()
+		if initError != nil {
+			log.Fatalf("failed to connect to redis: %v", initError)
+		}
 	})
 }
 

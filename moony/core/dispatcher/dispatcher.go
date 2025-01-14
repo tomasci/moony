@@ -69,11 +69,13 @@ func (d *EventDispatcher) Dispatch(eventType string, ctx context.Context, conn *
 	// read lock to ensure safe concurrent reads from handlers map
 	// basically, no new handlers will be added until current operation is done
 	d.mu.RLock()
-	// unlock after updating
-	defer d.mu.RUnlock()
 
 	// check if handlers exists for eventType
-	if handlers, exist := d.handlers[eventType]; exist {
+	handlers, exist := d.handlers[eventType]
+	// unlock right after reading
+	d.mu.RUnlock()
+
+	if exist {
 		// go through all handlers and call them
 		for _, handler := range handlers {
 			// calling each in new goroutine (allowing async event processing)
