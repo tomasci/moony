@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://c280p46r4uqru"]
+[gd_scene load_steps=7 format=3 uid="uid://c280p46r4uqru"]
 
 [ext_resource type="Script" path="res://scripts/moony/ui/moony_debug/scripts/ping_label.gd" id="1_w5163"]
+[ext_resource type="Script" path="res://scripts/moony/ui/moony_debug/scripts/fps_label.gd" id="2_2mcdr"]
 [ext_resource type="Script" path="res://scripts/moony/ui/moony_debug/scripts/client_id_label.gd" id="2_l5krp"]
 
 [sub_resource type="GDScript" id="GDScript_lxb6s"]
@@ -75,6 +76,14 @@ text = "[right]<ping>ms[/right]"
 fit_content = true
 scroll_active = false
 script = ExtResource("1_w5163")
+
+[node name="FPSLabel" type="RichTextLabel" parent="VBoxContainer2"]
+layout_mode = 2
+bbcode_enabled = true
+text = "[right]<fps> FPS[/right]"
+fit_content = true
+scroll_active = false
+script = ExtResource("2_2mcdr")
 
 [node name="ClientIdLabel" type="RichTextLabel" parent="VBoxContainer2"]
 layout_mode = 2
