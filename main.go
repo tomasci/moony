@@ -6,7 +6,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"log"
 	"moony/database/queries_client"
@@ -81,19 +81,17 @@ func main() {
 	ctx := context.Background()
 
 	// initialize postgres db
-	dbConn, err := queries_client.GetDBConnection()
+	dbPool, err := queries_client.GetDBConnectionPool()
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v\n", err)
 	}
 
 	// defer db connection close here,
 	// because when placed in init function - it will close immediately
-	defer func(conn *pgx.Conn, ctx context.Context) {
-		err := conn.Close(ctx)
-		if err != nil {
-			log.Printf("error closing connection: %s", err)
-		}
-	}(dbConn, ctx)
+	defer func(pool *pgxpool.Pool) {
+		pool.Close()
+		log.Println("Database connection pool closed")
+	}(dbPool)
 
 	// initialize redis
 	redisClient, err := redis.GetRedisClient()

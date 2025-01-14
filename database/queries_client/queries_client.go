@@ -2,7 +2,7 @@ package queries_client
 
 import (
 	"context"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"log"
 	"moony/database/sqlc"
 	"net/url"
@@ -13,8 +13,8 @@ import (
 var (
 	// sqlc queries instance
 	queries *sqlc.Queries
-	// db connection instance
-	conn *pgx.Conn
+	// db connection pool instance
+	pool *pgxpool.Pool
 	// once - to ensure instance created only once
 	once sync.Once
 	// for errors
@@ -41,33 +41,38 @@ func getConnectionURL() *url.URL {
 
 func InitializeDatabase() {
 	once.Do(func() {
-		log.Println("Initializing database connection")
+		log.Println("Initializing database connection pool")
 		ctx := context.Background()
 		connectionUrl := getConnectionURL()
-		// try to connect to db
-		conn, initError = pgx.Connect(ctx, connectionUrl.String())
 
+		// pool config
+		config, err := pgxpool.ParseConfig(connectionUrl.String())
+		if err != nil {
+			log.Fatalf("failed to parse connection url: %v", err)
+		}
+
+		pool, initError = pgxpool.NewWithConfig(ctx, config)
 		if initError != nil {
-			log.Fatalf("error connecting to database: %s", initError)
+			log.Fatalf("failed to create database connection pool: %v", initError)
 		}
 
 		// use sqlc
-		queries = sqlc.New(conn)
+		queries = sqlc.New(pool)
 	})
 }
 
-// GetDBConnection – global access to pgx database connection
-func GetDBConnection() (*pgx.Conn, error) {
-	if conn == nil {
+// GetDBConnectionPool – global access to pgx database connection
+func GetDBConnectionPool() (*pgxpool.Pool, error) {
+	if pool == nil {
 		InitializeDatabase()
 	}
 
-	return conn, initError
+	return pool, initError
 }
 
 // GetQueriesClient – global access to sqlc.Queries intance
 func GetQueriesClient() (*sqlc.Queries, error) {
-	if conn == nil {
+	if pool == nil {
 		InitializeDatabase()
 	}
 
