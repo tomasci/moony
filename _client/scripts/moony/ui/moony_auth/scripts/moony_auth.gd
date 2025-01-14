@@ -23,4 +23,5 @@ func _onMoonyAuthLoginResult(data):
 	# todo: save user token
 	MoonyAuthState.moonyAuthIsAuthorized = true
 	MoonyAuthState.moonyAuthClientId = clientId
+	GameState.isPaused = false
 	return
