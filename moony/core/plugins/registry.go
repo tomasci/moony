@@ -20,13 +20,13 @@ func RegisterPlugin(name string, plugin Plugin) {
 }
 
 // GetPlugin - get plugin by plugin name
-func GetPlugin(name string) (Plugin, bool) {
-	// lock plugin list, so no new plugins can be added
-	pluginsMu.RLock()
-	// unlock when done
-	defer pluginsMu.RUnlock()
-	// get plugin & check if it exists
-	plugin, exists := plugins[name]
-	// return plugin and status
-	return plugin, exists
-}
+//func GetPlugin(name string) (Plugin, bool) {
+//	// lock plugin list, so no new plugins can be added
+//	pluginsMu.RLock()
+//	// unlock when done
+//	defer pluginsMu.RUnlock()
+//	// get plugin & check if it exists
+//	plugin, exists := plugins[name]
+//	// return plugin and status
+//	return plugin, exists
+//}

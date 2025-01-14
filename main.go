@@ -259,7 +259,7 @@ func processPacket(id int, packet PacketData, conn *net.UDPConn, ctx context.Con
 	var messageData MessageData
 	err := json.Unmarshal(packet.data, &messageData)
 	if err != nil {
-		log.Println("failed to unmarshal packet:", err)
+		log.Println("failed to unmarshal packet:", id, err)
 		response.SendResponse[any](conn, packet.address, "", "", nil, err)
 	}
 
