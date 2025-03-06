@@ -1,7 +1,5 @@
 #!/bin/bash
 
-clear
-
 # update chmod for scripts
 find ./scripts/ -type f -exec chmod +x {} \;
 
@@ -24,4 +22,10 @@ alias moony:redis:dev="bash ./scripts/run_redis_dev.sh"
 # display amount of written go-lines in project
 alias moony:stats="bash ./scripts/stats.sh"
 
-echo "moony environment loaded"
+nix_debug_path() {
+  echo "***** NIX PATH DEBUG *****"
+  echo "PATH content:"
+  echo $PATH | tr ':' '\n'
+}
+
+alias debug:path="nix_debug_path"
