@@ -10,3 +10,4 @@ Todo.md
 database/sqlc
 database/redis/*.rdb
 .env
+_client/games/dino
