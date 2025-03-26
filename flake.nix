@@ -6,70 +6,82 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+    }:
     flake-utils.lib.eachDefaultSystem (
       system:
-        let
-            pkgs = nixpkgs.legacyPackages.${system};
+      let
+        pkgs = nixpkgs.legacyPackages.${system};
 
-            moonyShell = pkgs.writeTextFile {
-                name = "shell.sh";
-                destination = "/shell.sh";
-                text = builtins.readFile ./shell.sh;
-                executable = true;
-            };
+        myInputs = [
+          # go deps
+          pkgs.go
+          pkgs.gopls
+          pkgs.gotools
+          pkgs.golangci-lint
+          pkgs.air
 
-        in
-        {
-          devShells.default = pkgs.mkShell {
-            pure = true;
+          # sys utils
+          pkgs.bash
+          pkgs.coreutils
+          pkgs.findutils # find command
+          pkgs.which # which
+          pkgs.gnused # sed
+          pkgs.gnugrep # grep
+          pkgs.nano # nano
+          pkgs.ncurses # TUI, tput
+        ];
 
-            buildInputs = with pkgs; [
-              # go deps
-              go
-              gopls
-              gotools
-              golangci-lint
-              air
+        # build a clean PATH from the inputs
+        cleanPath = builtins.concatStringsSep ":" (map (pkg: "${pkg}/bin") myInputs);
 
-              # moony
-              moonyShell
+        moonyShell = pkgs.writeTextFile {
+          name = "shell.sh";
+          destination = "/shell.sh";
+          text = builtins.readFile ./shell.sh;
+          executable = true;
+        };
 
-              # sys utils
-              bash
-              coreutils
-              findutils     # find command
-              which         # which
-              gnused        # sed
-              gnugrep       # grep
-              nano          # nano
-              ncurses       # TUI, tput
-            ];
+      in
+      {
+        devShells.default = pkgs.mkShell {
+          pure = true;
 
-            shellHook = ''
-              tput clear
+          buildInputs = myInputs;
 
-              export PS1="\[\033[01;32m\][Moony]\[\033[00m\] \w $ "
-              export PATH=""
+          shellHook = ''
+            tput clear
 
-              for p in $buildInputs; do
-                export PATH="$p/bin:$PATH"
-              done
+            mkdir -p .nix-go
 
-              export GOPATH="$PWD/.nix-go"
-              export GOBIN="$GOPATH/bin"
-              export PATH="$GOBIN:$PATH"
+            export PS1="\[\033[01;32m\][Moony]\[\033[00m\] \w $ "
 
-              echo ""
-              echo "🌙 Moony development environment loaded"
-              echo ""
-              echo "Go version: $(go version)"
-              echo "GOPATH set to: $GOPATH"
-              echo ""
+            # use clean PATH that includes only declared Nix inputs
+            export PATH=${cleanPath}
 
-              source ${moonyShell}/shell.sh
-            '';
-          };
-        }
+            export GOPATH="$PWD/.nix-go"
+            export GOBIN="$GOPATH/bin"
+            export PATH="$GOBIN:$PATH"
+
+            IDE_GO_ROOT="$(dirname $(dirname $(which go)))/share/go"
+
+            echo ""
+            echo "🌙 Moony development environment loaded"
+            echo ""
+            echo "Go version: $(go version)"
+            echo ""
+            echo "IDE configuration:"
+            echo "  GOROOT: $IDE_GO_ROOT"
+            echo "  GOPATH: $GOPATH"
+            echo ""
+
+            source ${moonyShell}/shell.sh
+          '';
+        };
+      }
     );
 }
