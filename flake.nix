@@ -35,6 +35,8 @@
           pkgs.gnugrep # grep
           pkgs.nano # nano
           pkgs.ncurses # TUI, tput
+          pkgs.docker
+          pkgs.docker-compose
         ];
 
         # build a clean PATH from the inputs
