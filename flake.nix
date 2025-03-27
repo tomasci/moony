@@ -24,7 +24,8 @@
           pkgs.gotools
           pkgs.golangci-lint
           pkgs.air
-
+          pkgs.clang
+          pkgs.llvm
           # sys utils
           pkgs.bash
           pkgs.coreutils
@@ -50,10 +51,14 @@
       {
         devShells.default = pkgs.mkShell {
           pure = true;
-
           buildInputs = myInputs;
 
           shellHook = ''
+            # Download Go module dependencies automatically.
+            # This ensures your go.mod and go.sum are used to pull the correct versions.
+            echo "Updating Go dependencies..."
+            go mod download
+
             tput clear
 
             mkdir -p .nix-go
@@ -66,7 +71,6 @@
             export GOPATH="$PWD/.nix-go"
             export GOBIN="$GOPATH/bin"
             export PATH="$GOBIN:$PATH"
-
             IDE_GO_ROOT="$(dirname $(dirname $(which go)))/share/go"
 
             echo ""
