@@ -228,9 +228,9 @@ func main() {
 	// wait for system signal (interruption|termination signal)
 	<-sigChan
 
-	// dispatch server stopped event
+	// dispatch server stopped event and wait for all handlers to complete
 	// don't delete this event because it may affect some code or plugins
-	disp.Dispatch("OnServerStopped", ctx, nil, nil, nil)
+	disp.DispatchAndWait("OnServerStopped", ctx, nil, nil, nil)
 
 	close(quit) // signal all goroutines to exit
 	close(packetChan)

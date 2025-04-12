@@ -13,3 +13,5 @@ database/redis/*.rdb
 _client/games/dino
 .nix-go
 tmp
+data/world_data
+world_view.png

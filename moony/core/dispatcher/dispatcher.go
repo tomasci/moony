@@ -86,3 +86,26 @@ func (d *EventDispatcher) Dispatch(eventType string, ctx context.Context, conn *
 		}
 	}
 }
+
+// DispatchAndWait - trigger all handlers by eventType and wait for their completion
+func (d *EventDispatcher) DispatchAndWait(eventType string, ctx context.Context, conn *net.UDPConn, address *net.UDPAddr, data []any) {
+	d.mu.RLock()
+	handlers, exist := d.handlers[eventType]
+	d.mu.RUnlock()
+
+	if exist {
+		var wg sync.WaitGroup
+		wg.Add(len(handlers))
+
+		// go through all handlers and call them
+		for _, handler := range handlers {
+			go func(h EventHandler) {
+				defer wg.Done()
+				h(ctx, conn, address, data)
+			}(handler)
+		}
+
+		// wait for all handlers to complete
+		wg.Wait()
+	}
+}
