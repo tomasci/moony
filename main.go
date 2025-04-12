@@ -12,6 +12,7 @@ import (
 	"moony/database/queries_client"
 	"moony/database/redis"
 	"moony/moony/core/dispatcher"
+	"moony/moony/core/mstorage"
 	"moony/moony/core/mvalidator"
 	"moony/moony/core/plugins"
 	"moony/moony/utils"
@@ -65,6 +66,11 @@ func init() {
 	exeDir, err := utils.GetExecutableDir()
 	if err != nil {
 		log.Fatalf("failed to get executable directory: %v\n", err)
+	}
+
+	// initialize mstorage
+	if err := mstorage.Init(exeDir); err != nil {
+		log.Fatalf("failed to initialize mstorage: %v\n", err)
 	}
 
 	// try to load plugins
