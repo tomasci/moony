@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dv65qur2a4dij"]
 
-[ext_resource type="Script" path="res://scripts/moony/objects/moony_object.gd" id="1_kwchb"]
+[ext_resource type="Script" uid="uid://c3udub00ditlx" path="res://scripts/moony/objects/moony_object.gd" id="1_kwchb"]
 
 [node name="Sphere" type="Node3D" node_paths=PackedStringArray("label3d")]
 script = ExtResource("1_kwchb")

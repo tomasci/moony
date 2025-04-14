@@ -1,8 +1,8 @@
 [gd_scene load_steps=10 format=3 uid="uid://df2wfwb5lfagv"]
 
-[ext_resource type="Script" path="res://scripts/moony/ui/moony_auth/scripts/moony_auth.gd" id="1_b8g26"]
-[ext_resource type="Script" path="res://scripts/moony/ui/moony_auth/scripts/auth_create_account_button.gd" id="2_3a11u"]
-[ext_resource type="Script" path="res://scripts/moony/ui/moony_auth/scripts/login_button.gd" id="2_h4o13"]
+[ext_resource type="Script" uid="uid://c5tmjrnv1dm47" path="res://scripts/moony/ui/moony_auth/scripts/moony_auth.gd" id="1_b8g26"]
+[ext_resource type="Script" uid="uid://beoga2nmin6hi" path="res://scripts/moony/ui/moony_auth/scripts/auth_create_account_button.gd" id="2_3a11u"]
+[ext_resource type="Script" uid="uid://ccqk00af56xlq" path="res://scripts/moony/ui/moony_auth/scripts/login_button.gd" id="2_h4o13"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4dnhu"]
 bg_color = Color(0, 0.413942, 0.895956, 1)

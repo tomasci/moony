@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://cqje3u1yjj86u"]
 
-[ext_resource type="Script" path="res://scripts/moony/ui/basic_chat/scripts/basic_chat.gd" id="1_psjhy"]
+[ext_resource type="Script" uid="uid://4wl33h5l2j61" path="res://scripts/moony/ui/basic_chat/scripts/basic_chat.gd" id="1_psjhy"]
 
 [sub_resource type="GDScript" id="GDScript_nivo4"]
 script/source = "extends Button

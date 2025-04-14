@@ -1,11 +1,11 @@
 [gd_scene load_steps=10 format=3 uid="uid://bxmekcv6edg3t"]
 
-[ext_resource type="Script" path="res://scripts/game/player_camera.gd" id="1_1q15n"]
+[ext_resource type="Script" uid="uid://dekbwdcngcgsh" path="res://scripts/game/player_camera.gd" id="1_1q15n"]
 [ext_resource type="PackedScene" uid="uid://cqje3u1yjj86u" path="res://scripts/moony/ui/basic_chat/basic_chat.tscn" id="1_p6pcx"]
 [ext_resource type="PackedScene" uid="uid://df2wfwb5lfagv" path="res://scripts/moony/ui/moony_auth/moony_auth.tscn" id="2_rls8c"]
 [ext_resource type="PackedScene" uid="uid://bg27kc8p034ca" path="res://scripts/moony/ui/moony_auth/moony_auth_create.tscn" id="3_vnphb"]
 [ext_resource type="PackedScene" uid="uid://c280p46r4uqru" path="res://scripts/moony/ui/moony_debug/moony_debug.tscn" id="4_lquhd"]
-[ext_resource type="Script" path="res://scripts/game/resume_game_button.gd" id="6_rq8vh"]
+[ext_resource type="Script" uid="uid://dbel5hrdppc2m" path="res://scripts/game/resume_game_button.gd" id="6_rq8vh"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_2dw0l"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)

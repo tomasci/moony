@@ -1,8 +1,8 @@
 [gd_scene load_steps=7 format=3 uid="uid://c280p46r4uqru"]
 
-[ext_resource type="Script" path="res://scripts/moony/ui/moony_debug/scripts/ping_label.gd" id="1_w5163"]
-[ext_resource type="Script" path="res://scripts/moony/ui/moony_debug/scripts/fps_label.gd" id="2_2mcdr"]
-[ext_resource type="Script" path="res://scripts/moony/ui/moony_debug/scripts/client_id_label.gd" id="2_l5krp"]
+[ext_resource type="Script" uid="uid://dkmlt70qtxmuv" path="res://scripts/moony/ui/moony_debug/scripts/ping_label.gd" id="1_w5163"]
+[ext_resource type="Script" uid="uid://cpgjugflpmoy" path="res://scripts/moony/ui/moony_debug/scripts/fps_label.gd" id="2_2mcdr"]
+[ext_resource type="Script" uid="uid://ceej0ntyuu1ni" path="res://scripts/moony/ui/moony_debug/scripts/client_id_label.gd" id="2_l5krp"]
 
 [sub_resource type="GDScript" id="GDScript_lxb6s"]
 script/source = "extends Button
